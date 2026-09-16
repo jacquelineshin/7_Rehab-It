@@ -10,3 +10,7 @@ Rehab-It is an AI-assisted rehabilitation application designed to provide person
 - Help users perform exercises correctly
 - Encourage exercise consistency and adherence
 - Make rehabilitation resources more accessible
+
+## Documentation
+
+Project documentation, wireframes, branching strategy, and weekly progress notes are located in the `docs/` directory.
