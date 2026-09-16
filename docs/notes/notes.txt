@@ -1,0 +1,9 @@
+Week 1 Progress 9/14
+
+- Created the Django project and initial project structure.
+- Implemented split settings for development and production.
+- Added environment variable support using a .env file.
+- Added .env.example and configured .gitignore to prevent .env from being committed.
+- Connected the local project to the GitHub repository.
+- Resolved the initial Git merge conflict.
+- Next steps: create and test the development and production configurations and continue building the project.
