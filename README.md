@@ -13,4 +13,4 @@ Rehab-It is an AI-assisted rehabilitation application designed to provide person
 
 ## Documentation
 
-Project documentation, wireframes, branching strategy, and weekly progress notes are located in the `docs/` directory..
+Project documentation, wireframes, branching strategy, and weekly progress notes are located in the `docs/` directory...
