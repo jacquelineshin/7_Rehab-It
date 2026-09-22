@@ -3,11 +3,16 @@ from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.views import View
 from django.views.generic import ListView, DetailView
-
 from account.models import User
 from .models import Exercise, WorkoutSession, TrainingPlan
+from django.db.models import Count
+from django.http import JsonResponse
+import matplotlib.pyplot as plt
+from django.shortcuts import render
+from io import BytesIO
 
-
+def exercise_chart_page(request):
+    return render(request, "rehab/exercise_chart.html")
 def exerciseManual(request):
     exercises = Exercise.objects.all()
     template = loader.get_template("rehab/exercise_list.html")
@@ -90,3 +95,41 @@ class TrainingPlanDashboardView(View):
             "percentComplete": percentComplete,
         }
         return render(request, "rehab/training_plan_dashboard.html", context)
+def exercise_difficulty_data(request):
+    exercise_counts = (
+        Exercise.objects
+        .values("difficulty")
+        .annotate(count=Count("exercise_id"))
+        .order_by("difficulty")
+    )
+
+    return JsonResponse(list(exercise_counts), safe=False)
+
+def exercise_difficulty_chart(request):
+    exercise_counts = (
+        Exercise.objects
+        .values("difficulty")
+        .annotate(count=Count("exercise_id"))
+        .order_by("difficulty")
+    )
+
+    difficulties = [item["difficulty"] for item in exercise_counts]
+    counts = [item["count"] for item in exercise_counts]
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(difficulties, counts)
+
+    plt.title("Exercises by Difficulty")
+    plt.xlabel("Difficulty Level")
+    plt.ylabel("Number of Exercises")
+    plt.legend(["Exercises"])
+    plt.tight_layout()
+
+    buffer = BytesIO()
+
+    plt.savefig(buffer, format="png")
+    plt.close()
+
+    buffer.seek(0)
+
+    return HttpResponse(buffer.getvalue(), content_type="image/png")

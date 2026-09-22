@@ -49,3 +49,10 @@ class Evaluation(models.Model):
                 name="unique_user_evaluation_date"
             )
         ]
+
+class Exercise(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name

@@ -1,8 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import DetailView
-
 from .models import User, Evaluation
-
 
 class UserDetailView(DetailView):
     model = User
@@ -15,3 +13,4 @@ def evaluationList(request, user_id):
     evaluations = Evaluation.objects.filter(user_id=user)
     context = {"user": user, "evaluations": evaluations}
     return render(request, "account/evaluation_list.html", context)
+
