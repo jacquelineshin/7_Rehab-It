@@ -1,0 +1,18 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Workout Session Details
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>Workout Session Details</h1>
+    <ul>
+        {% for workout_session_detail_for_loop in workout_session_detail_html %}
+            <li>
+                <a href="">{{ workout_session_detail_for_loop }}</a>
+            </li>
+        {% empty %}
+            <li>No workout session details exist.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

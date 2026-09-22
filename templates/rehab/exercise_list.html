@@ -1,0 +1,18 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Exercise List
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>Exercise List</h1>
+    <ul>
+        {% for exercise in exercises %}
+            <li>
+                <a href="">{{ exercise }}</a>
+            </li>
+        {% empty %}
+            <li>No exercise list exists.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

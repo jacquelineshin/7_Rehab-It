@@ -1,0 +1,18 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Training Plan List
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>Training Plan List</h1>
+    <ul>
+        {% for training_plan_list_for_loop in training_plan_list_html %}
+            <li>
+                <a href="">{{ training_plan_list_for_loop }}</a>
+            </li>
+        {% empty %}
+            <li>No training plan list exists.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

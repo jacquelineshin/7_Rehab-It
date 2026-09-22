@@ -1,0 +1,18 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Training Plan Dashboard
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>Training Plan Dashboard</h1>
+    <ul>
+        {% for training_plan_dashboard_for_loop in training_plan_dashboard_html %}
+            <li>
+                <a href="">{{ training_plan_dashboard_for_loop }}</a>
+            </li>
+        {% empty %}
+            <li>No training plan dashboard exists.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
