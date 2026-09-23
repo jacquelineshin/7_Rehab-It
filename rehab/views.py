@@ -115,15 +115,22 @@ def exercise_difficulty_chart(request):
 
     difficulties = [item["difficulty"] for item in exercise_counts]
     counts = [item["count"] for item in exercise_counts]
+    difficulty_labels = {
+        1: "Easy",
+        2: "Moderate",
+        3: "Difficult",
+    }
 
+    labels = [difficulty_labels.get(d, str(d)) for d in difficulties]
     plt.figure(figsize=(8, 5))
-    plt.bar(difficulties, counts)
+    plt.bar(labels, counts, label="Exercises")
 
     plt.title("Exercises by Difficulty")
     plt.xlabel("Difficulty Level")
     plt.ylabel("Number of Exercises")
     plt.legend(["Exercises"])
     plt.tight_layout()
+
 
     buffer = BytesIO()
 
