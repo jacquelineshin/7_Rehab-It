@@ -17,3 +17,7 @@ Week 2 Progress 9/22
 - Created an image endpoint that serves the chart as a PNG using HttpResponse.
 - Updated the chart generation to use BytesIO so the PNG can be generated and served directly from memory rather than saved to disk.
 - Learned about RAM implications, including how larger charts and multiple simultaneous requests can increase memory usage.
+- Configured a project-level static/ directory for Django static files.
+- Added STATIC_URL and STATICFILES_DIRS to the project settings.
+- Verified Django could locate static files using python manage.py findstatic.
+- Tested the configuration successfully and confirmed Django can load files from the project-level static directory.

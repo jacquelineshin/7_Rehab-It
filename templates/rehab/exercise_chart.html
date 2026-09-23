@@ -1,13 +1,31 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Exercise Difficulty Chart</title>
+    <title>Rehab-It Exercise Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body>
 
-<h1>Exercise Difficulty Chart</h1>
+<header>
+    <h1>Rehab-It</h1>
+    <p>Exercise Difficulty Dashboard</p>
+</header>
 
-<img src="{% url 'exercise_difficulty_chart' %}" alt="Exercises by Difficulty">
+<main>
+    <h2>Exercises by Difficulty</h2>
+
+    <div class="chart-container">
+        <img src="{% url 'exercise_difficulty_chart' %}"
+             alt="Bar chart showing the number of exercises at each difficulty level">
+    </div>
+</main>
+
+<footer>
+    Rehab-It Exercise Analytics
+</footer>
 
 </body>
 </html>
