@@ -1,0 +1,36 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Exercise Search
+{% endblock %}
+
+{% block rehab_content %}
+
+<h1>Exercise Search</h1>
+
+<form method="GET">
+    <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search exercises"
+    >
+
+    <button type="submit">Search</button>
+</form>
+
+<h2>Exercises</h2>
+
+<ul>
+    {% for exercise in exercises %}
+        <li>
+            <a href="{% url 'exercise_detail' exercise.pk %}">
+                {{ exercise }}
+            </a>
+        </li>
+    {% empty %}
+        <li>No exercises match your search.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

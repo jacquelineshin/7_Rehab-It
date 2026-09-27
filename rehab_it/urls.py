@@ -13,6 +13,10 @@ from rehab.views import (
     WorkoutSessionDetailView,
     TrainingPlanDetailView,
     TrainingPlanDashboardView,
+    exerciseSearch,
+    workoutSessionSearch,
+    workoutSessionExerciseSearch,
+    dataSummary,
 )
 
 urlpatterns = [
@@ -26,4 +30,8 @@ urlpatterns = [
     path("training_plan_detail/<int:pk>", TrainingPlanDetailView.as_view(), name="training_plan_detail"),
     path("exercise/detail/<int:pk>", ExerciseDetailView.as_view(), name="exercise_detail"),
     path("workout_session/detail/<int:pk>", WorkoutSessionDetailView.as_view(), name="workout_session_detail"),
+    path("exercises/search/", exerciseSearch, name="exercise_search"),
+    path("workout_sessions/search/", workoutSessionSearch, name="workout_session_search"),
+    path("workout_sessions/exercise-search/", workoutSessionExerciseSearch, name="workout_session_exercise_search"),
+    path("data-summary/", dataSummary, name="data_summary"),
 ]

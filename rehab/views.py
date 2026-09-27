@@ -198,3 +198,93 @@ def exercise_difficulty_chart(request):
         buffer.getvalue(),
         content_type="image/png"
     )
+
+
+def exerciseSearch(request):
+    query = request.GET.get("q", "")
+
+    exercises = Exercise.objects.all()
+
+    if query:
+        exercises = exercises.filter(
+            name__icontains=query
+        )
+
+    context = {
+        "exercises": exercises,
+        "query": query,
+    }
+
+    return render(
+        request,
+        "rehab/exercise_search.html",
+        context
+    )
+
+
+def workoutSessionSearch(request):
+    sessions = WorkoutSession.objects.all()
+
+    if request.method == "POST":
+        completed = request.POST.get("completed")
+
+        if completed:
+            sessions = sessions.filter(
+                completed__exact=True
+            )
+
+    context = {
+        "sessions": sessions,
+    }
+
+    return render(
+        request,
+        "rehab/workout_session_search.html",
+        context
+    )
+
+
+def workoutSessionExerciseSearch(request):
+    query = request.GET.get("q", "")
+
+    sessions = WorkoutSession.objects.all()
+
+    if query:
+        sessions = sessions.filter(
+            exercises__name__icontains=query
+        ).distinct()
+
+    context = {
+        "sessions": sessions,
+        "query": query,
+    }
+
+    return render(
+        request,
+        "rehab/workout_session_exercise_search.html",
+        context
+    )
+
+
+def dataSummary(request):
+    total_exercises = Exercise.objects.count()
+
+    session_summary = (
+        WorkoutSession.objects
+        .values("completed")
+        .annotate(
+            count=Count("workout_session_id")
+        )
+        .order_by("completed")
+    )
+
+    context = {
+        "total_exercises": total_exercises,
+        "session_summary": session_summary,
+    }
+
+    return render(
+        request,
+        "rehab/data_summary.html",
+        context
+    )
