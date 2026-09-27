@@ -5,14 +5,9 @@
 {% endblock %}
 
 {% block rehab_content %}
-    <h1>Exercise Details</h1>
-    <ul>
-        {% for exercise_detail_for_loop in exercise_detail_html %}
-            <li>
-                <a href="">{{ exercise_detail_for_loop }}</a>
-            </li>
-        {% empty %}
-            <li>No exercise details exist.</li>
-        {% endfor %}
-    </ul>
+    <h1>{{ exercise.name }}</h1>
+
+    <p>Description: {{ exercise.description }}</p>
+    <p>Difficulty: {{ exercise.difficulty }}</p>
+
 {% endblock %}

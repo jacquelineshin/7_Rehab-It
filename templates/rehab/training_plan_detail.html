@@ -1,0 +1,25 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Training Plan Details
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>{{ training_plan.name }}</h1>
+
+    <p>Start Date: {{ training_plan.start_date }}</p>
+    <p>End Date: {{ training_plan.end_date }}</p>
+    <p>Active: {{ training_plan.active }}</p>
+    <ul>
+        {% for workout_session in workout_sessions %}
+            <li>
+                <a href="{% url 'workout_session_detail' workout_session.pk %}">
+                    {{ workout_session }}
+                </a>
+            </li>
+        {% empty %}
+            <li>No workout sessions exist.</li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

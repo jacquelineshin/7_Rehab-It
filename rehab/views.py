@@ -8,6 +8,10 @@ from account.models import User
 from .models import Exercise, WorkoutSession, TrainingPlan
 
 
+def home(request):
+    return render(request, "rehab/home.html")
+
+
 def exerciseManual(request):
     exercises = Exercise.objects.all()
     template = loader.get_template("rehab/exercise_list.html")
@@ -43,27 +47,37 @@ class ExerciseDetailView(DetailView):
 class WorkoutSessionDetailView(DetailView):
     model = WorkoutSession
     template_name = "rehab/workout_session_detail.html"
-    context_object_name = "session"
+    context_object_name = "workout_session"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["exercises"] = self.object.exercises.all()
+        return context
+
+
+class TrainingPlanDetailView(DetailView):
+    model = TrainingPlan
+    template_name = "rehab/training_plan_detail.html"
+    context_object_name = "training_plan"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workout_sessions"] = self.object.workout_sessions.all()
+        return context
 
 
 class TrainingPlanListView(ListView):
     model = TrainingPlan
-    template_name = "rehab/training_plan_list.html"
-    context_object_name = "trainingPlans"
+    template_name = "rehab/training_plan_history.html"
+    context_object_name = "training_plans"
 
     def get_queryset(self):
-        return TrainingPlan.objects.filter(user_id=self.kwargs["user_id"])
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["user"] = get_object_or_404(User, pk=self.kwargs["user_id"])
-        return context
+        return TrainingPlan.objects.filter(active=False)
 
 
 class TrainingPlanDashboardView(View):
-    def get(self, request, user_id):
-        user = get_object_or_404(User, pk=user_id)
-        plan = TrainingPlan.objects.filter(user_id=user, active=True).first()
+    def get(self, request):
+        plan = TrainingPlan.objects.filter(active=True).first()
 
         if plan:
             sessions = plan.workout_sessions.all()
@@ -72,6 +86,7 @@ class TrainingPlanDashboardView(View):
 
         totalCount = len(sessions)
         completedCount = 0
+
         for session in sessions:
             if session.completed:
                 completedCount += 1
@@ -82,11 +97,15 @@ class TrainingPlanDashboardView(View):
             percentComplete = 0
 
         context = {
-            "user": user,
             "plan": plan,
             "sessions": sessions,
             "completedCount": completedCount,
             "totalCount": totalCount,
             "percentComplete": percentComplete,
         }
-        return render(request, "rehab/training_plan_dashboard.html", context)
+
+        return render(
+            request,
+            "rehab/training_plan_dashboard.html",
+            context
+        )

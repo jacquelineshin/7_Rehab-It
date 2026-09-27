@@ -9,7 +9,9 @@
     <ul>
         {% for exercise in exercises %}
             <li>
-                <a href="">{{ exercise }}</a>
+                <a href="{% url 'exercise_detail' exercise.pk %}">
+                    {{ exercise }}
+                </a>
             </li>
         {% empty %}
             <li>No exercise list exists.</li>

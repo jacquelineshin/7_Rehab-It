@@ -5,14 +5,23 @@
 {% endblock %}
 
 {% block rehab_content %}
-    <h1>Workout Session Details</h1>
+    <h1>{{ workout_session.name }}</h1>
+
+    <p>Date: {{ workout_session.date }}</p>
+    <p>Completed: {{ workout_session.completed }}</p>
+
+    <h2>Exercises</h2>
+
     <ul>
-        {% for workout_session_detail_for_loop in workout_session_detail_html %}
+        {% for exercise in exercises %}
             <li>
-                <a href="">{{ workout_session_detail_for_loop }}</a>
+                <a href="{% url 'exercise_detail' exercise.pk %}">
+                    {{ exercise }}
+                </a>
             </li>
         {% empty %}
-            <li>No workout session details exist.</li>
+            <li>No exercises exist for this workout session.</li>
         {% endfor %}
     </ul>
+
 {% endblock %}

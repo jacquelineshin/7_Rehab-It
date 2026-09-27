@@ -1,0 +1,20 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Training Plan History
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>Training Plan History</h1>
+    <ul>
+        {% for training_plan in training_plans %}
+            <li>
+                <a href="{{ training_plan.get_absolute_url }}">
+                        {{ training_plan.name }}
+                </a>
+            </li>
+        {% empty %}
+            <li>No inactive training plans exist.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 from account.models import User
 
@@ -79,3 +80,6 @@ class TrainingPlan(models.Model):
                 name="unique_user_training_plan"
             )
         ]
+
+    def get_absolute_url(self):
+        return reverse("training_plan_detail", kwargs={"pk": self.pk})

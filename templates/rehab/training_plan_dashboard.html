@@ -6,13 +6,32 @@
 
 {% block rehab_content %}
     <h1>Training Plan Dashboard</h1>
-    <ul>
-        {% for training_plan_dashboard_for_loop in training_plan_dashboard_html %}
-            <li>
-                <a href="">{{ training_plan_dashboard_for_loop }}</a>
-            </li>
-        {% empty %}
-            <li>No training plan dashboard exists.</li>
-        {% endfor %}
-    </ul>
+
+    {% if plan %}
+        <h2>{{ plan.name }}</h2>
+
+        <p>Start Date: {{ plan.start_date }}</p>
+        <p>End Date: {{ plan.end_date }}</p>
+
+        <h3>Workout Sessions</h3>
+
+        <ul>
+            {% for session in sessions %}
+                <li>
+                    <a href="{% url 'workout_session_detail' session.pk %}">
+                        {{ session }}
+                    </a>
+                </li>
+            {% empty %}
+                <li>No workout sessions exist.</li>
+            {% endfor %}
+        </ul>
+
+        <p>Total Sessions: {{ totalCount }}</p>
+        <p>Completed Sessions: {{ completedCount }}</p>
+        <p>Progress: {{ percentComplete }}%</p>
+
+    {% else %}
+        <p>No active training plans exist.</p>
+    {% endif %}
 {% endblock %}
