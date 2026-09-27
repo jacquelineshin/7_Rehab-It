@@ -7,3 +7,10 @@ Week 1 Progress 9/14
 - Connected the local project to the GitHub repository.
 - Resolved the initial Git merge conflict.
 - Next steps: create and test the development and production configurations and continue building the project.
+
+
+Week 3 Section 1
+
+I have implemented training_plan to training_plan_detail using get_absolute_url(). This is useful
+because there may be many instances in which the training_plan_detail URL will need to be retrieved.
+This will replace URL routing repetition and make the URL routing system more organized.
