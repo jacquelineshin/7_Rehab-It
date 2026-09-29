@@ -29,3 +29,20 @@ Week 2 Progress 9/22
 - Added STATIC_URL and STATICFILES_DIRS to the project settings.
 - Verified Django could locate static files using python manage.py findstatic.
 - Tested the configuration successfully and confirmed Django can load files from the project-level static directory.
+
+
+Section 6 - APIs
+
+How are we planning on creating an API for our project?
+- We made our API views in rehab/apiViews.py and they use JsonResponse to return data as JSON.
+- /api/exercises/ is a function based view and /api/workoutSessions/ is a class based view.
+- Filtering is done with query parameters using request.GET. For exercises you can filter by name, difficulty,
+  minDifficulty and maxDifficulty. For workout sessions you can filter by completed and exercise.
+- We also made /api/httpResponse/ and /api/jsonResponse/ to compare HttpResponse and JsonResponse. They return the
+  same data but HttpResponse has the content type text/html and JsonResponse has application/json. When you open the
+  JsonResponse one in Chrome it shows a pretty print option since it knows it's JSON, but the HttpResponse one just
+  shows up as plain text on a page.
+
+What kind of data are we planning to serve?
+- Exercises (name, description, difficulty) and workout sessions (name, date, completed, and the exercises in it).
+- We didn't include user or evaluation data since that has people's injury info and the API is public.
