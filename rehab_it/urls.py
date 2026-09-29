@@ -18,6 +18,12 @@ from rehab.views import (
     workoutSessionExerciseSearch,
     dataSummary,
 )
+from rehab.apiViews import (
+    exerciseApi,
+    WorkoutSessionApi,
+    httpResponseDemo,
+    jsonResponseDemo,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -34,4 +40,8 @@ urlpatterns = [
     path("workout_sessions/search/", workoutSessionSearch, name="workout_session_search"),
     path("workout_sessions/exercise-search/", workoutSessionExerciseSearch, name="workout_session_exercise_search"),
     path("data-summary/", dataSummary, name="data_summary"),
+    path("api/exercises/", exerciseApi, name="exerciseApi"),
+    path("api/workoutSessions/", WorkoutSessionApi.as_view(), name="workoutSessionApi"),
+    path("api/httpResponse/", httpResponseDemo, name="httpResponseDemo"),
+    path("api/jsonResponse/", jsonResponseDemo, name="jsonResponseDemo"),
 ]
