@@ -1,0 +1,43 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Workout Session Filter
+{% endblock %}
+
+{% block rehab_content %}
+
+<h1>Workout Session Filter</h1>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>
+        <input type="checkbox" name="completed">
+        Show completed sessions only
+    </label>
+
+    <button type="submit">Filter</button>
+</form>
+
+<h2>Workout Sessions</h2>
+
+<ul>
+    {% for session in sessions %}
+        <li>
+            <a href="{% url 'workout_session_detail' session.pk %}">
+                {{ session }}
+            </a>
+
+            {% if session.completed %}
+                - Completed
+            {% else %}
+                - Not Completed
+            {% endif %}
+        </li>
+
+    {% empty %}
+        <li>No workout sessions match this filter.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

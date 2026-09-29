@@ -1,0 +1,39 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Data Summary
+{% endblock %}
+
+{% block rehab_content %}
+
+<h1>Rehab-It! Data Summary</h1>
+
+<h2>Total Exercises</h2>
+
+<p>
+    There are {{ total_exercises }} exercises in the database.
+</p>
+
+<h2>Workout Session Summary</h2>
+
+<ul>
+    {% for summary in session_summary %}
+
+        <li>
+            {% if summary.completed %}
+                Completed
+            {% else %}
+                Not Completed
+            {% endif %}
+
+            — {{ summary.count }} session(s)
+        </li>
+
+    {% empty %}
+
+        <li>No workout sessions exist.</li>
+
+    {% endfor %}
+</ul>
+
+{% endblock %}

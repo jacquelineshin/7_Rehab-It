@@ -1,0 +1,48 @@
+Week 1 Progress 9/14
+
+- Created the Django project and initial project structure.
+- Implemented split settings for development and production.
+- Added environment variable support using a .env file.
+- Added .env.example and configured .gitignore to prevent .env from being committed.
+- Connected the local project to the GitHub repository.
+- Resolved the initial Git merge conflict.
+- Next steps: create and test the development and production configurations and continue building the project.
+
+
+P1-A3 Section 1
+
+I have implemented training_plan to training_plan_detail using get_absolute_url(). This is useful
+because there may be many instances in which the training_plan_detail URL will need to be retrieved.
+This will replace URL routing repetition and make the URL routing system more organized.
+
+
+Week 2 Progress 9/22
+- Implemented data aggregation using the Django ORM to calculate the number of exercises at each difficulty level.
+- Created a Django endpoint that returns the aggregated exercise data as JSON.
+- Used Matplotlib to generate a bar chart showing the number of exercises by difficulty.
+- Added a chart title, axis labels, and legend to meet the visualization requirements.
+- Created a Django HTML template to display the generated chart.
+- Created an image endpoint that serves the chart as a PNG using HttpResponse.
+- Updated the chart generation to use BytesIO so the PNG can be generated and served directly from memory rather than saved to disk.
+- Learned about RAM implications, including how larger charts and multiple simultaneous requests can increase memory usage.
+- Configured a project-level static/ directory for Django static files.
+- Added STATIC_URL and STATICFILES_DIRS to the project settings.
+- Verified Django could locate static files using python manage.py findstatic.
+- Tested the configuration successfully and confirmed Django can load files from the project-level static directory.
+
+
+Section 6 - APIs
+
+How are we planning on creating an API for our project?
+- We made our API views in rehab/apiViews.py and they use JsonResponse to return data as JSON.
+- /api/exercises/ is a function based view and /api/workoutSessions/ is a class based view.
+- Filtering is done with query parameters using request.GET. For exercises you can filter by name, difficulty,
+  minDifficulty and maxDifficulty. For workout sessions you can filter by completed and exercise.
+- We also made /api/httpResponse/ and /api/jsonResponse/ to compare HttpResponse and JsonResponse. They return the
+  same data but HttpResponse has the content type text/html and JsonResponse has application/json. When you open the
+  JsonResponse one in Chrome it shows a pretty print option since it knows it's JSON, but the HttpResponse one just
+  shows up as plain text on a page.
+
+What kind of data are we planning to serve?
+- Exercises (name, description, difficulty) and workout sessions (name, date, completed, and the exercises in it).
+- We didn't include user or evaluation data since that has people's injury info and the API is public.

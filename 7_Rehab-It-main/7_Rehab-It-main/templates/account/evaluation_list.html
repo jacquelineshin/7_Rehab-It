@@ -1,0 +1,18 @@
+{% extends "account/base.html" %}
+
+{% block title %}
+    Evaluation List
+{% endblock %}
+
+{% block account_content %}
+    <h1>Evaluation List</h1>
+    <ul>
+        {% for evaluation_list_for_loop in evaluation_list_html %}
+            <li>
+                <a href="">{{ evaluation_list_for_loop }}</a>
+            </li>
+        {% empty %}
+            <li>No evaluation list exists.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

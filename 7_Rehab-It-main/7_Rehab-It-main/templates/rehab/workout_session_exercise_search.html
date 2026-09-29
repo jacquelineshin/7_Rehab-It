@@ -1,0 +1,36 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Workout Sessions by Exercise
+{% endblock %}
+
+{% block rehab_content %}
+
+<h1>Workout Sessions by Exercise</h1>
+
+<form method="GET">
+    <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Enter exercise name"
+    >
+
+    <button type="submit">Search</button>
+</form>
+
+<h2>Workout Sessions</h2>
+
+<ul>
+    {% for session in sessions %}
+        <li>
+            <a href="{% url 'workout_session_detail' session.pk %}">
+                {{ session }}
+            </a>
+        </li>
+    {% empty %}
+        <li>No workout sessions match that exercise.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

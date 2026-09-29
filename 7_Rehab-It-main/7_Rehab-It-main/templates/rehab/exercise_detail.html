@@ -1,0 +1,13 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Exercise Details
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>{{ exercise.name }}</h1>
+
+    <p>Description: {{ exercise.description }}</p>
+    <p>Difficulty: {{ exercise.difficulty }}</p>
+
+{% endblock %}

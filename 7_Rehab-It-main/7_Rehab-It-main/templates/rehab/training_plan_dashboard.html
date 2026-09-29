@@ -1,0 +1,37 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Training Plan Dashboard
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>Training Plan Dashboard</h1>
+
+    {% if plan %}
+        <h2>{{ plan.name }}</h2>
+
+        <p>Start Date: {{ plan.start_date }}</p>
+        <p>End Date: {{ plan.end_date }}</p>
+
+        <h3>Workout Sessions</h3>
+
+        <ul>
+            {% for session in sessions %}
+                <li>
+                    <a href="{% url 'workout_session_detail' session.pk %}">
+                        {{ session }}
+                    </a>
+                </li>
+            {% empty %}
+                <li>No workout sessions exist.</li>
+            {% endfor %}
+        </ul>
+
+        <p>Total Sessions: {{ totalCount }}</p>
+        <p>Completed Sessions: {{ completedCount }}</p>
+        <p>Progress: {{ percentComplete }}%</p>
+
+    {% else %}
+        <p>No active training plans exist.</p>
+    {% endif %}
+{% endblock %}

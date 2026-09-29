@@ -1,0 +1,23 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    Exercise List
+{% endblock %}
+
+{% block rehab_content %}
+    <h1>Exercise List</h1>
+    <form method="POST">
+        {% csrf_token %}
+    </form>
+    <ul>
+        {% for exercise in exercises %}
+            <li>
+                <a href="{% url 'exercise_detail' exercise.pk %}">
+                    {{ exercise }}
+                </a>
+            </li>
+        {% empty %}
+            <li>No exercise list exists.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
