@@ -6,6 +6,9 @@
 
 {% block rehab_content %}
     <h1>Exercise List</h1>
+    <form method="POST">
+        {% csrf_token %}
+    </form>
     <ul>
         {% for exercise in exercises %}
             <li>
