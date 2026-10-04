@@ -10,6 +10,9 @@ from .models import Exercise, WorkoutSession, TrainingPlan
 
 import matplotlib.pyplot as plt
 from io import BytesIO
+import requests
+from django.conf import settings
+from django.http import JsonResponse
 
 
 def home(request):
@@ -302,3 +305,148 @@ def dataSummary(request):
         "rehab/data_summary.html",
         context
     )
+def external_exercise_search(request):
+    query = request.GET.get("q", "").strip()
+
+    if not query:
+        return JsonResponse(
+            {"error": "Please provide a search term using ?q="},
+            status=400
+        )
+
+    url = "https://api.exerciseapi.dev/v1/exercises"
+
+    params = {
+        "q": query,
+        "category": "physical_therapy",
+        "limit": 5,
+    }
+
+    headers = {
+        "X-API-Key": settings.EXERCISE_API_KEY
+    }
+
+    try:
+        response = requests.get(
+            url,
+            params=params,
+            headers=headers,
+            timeout=5
+        )
+
+        response.raise_for_status()
+        data = response.json()
+
+    except requests.exceptions.Timeout:
+        return JsonResponse(
+            {"error": "The exercise API timed out."},
+            status=504
+        )
+
+    except requests.exceptions.RequestException:
+        return JsonResponse(
+            {"error": "Unable to retrieve exercise data."},
+            status=502
+        )
+
+    return JsonResponse(data)
+
+def exercise_analysis(request):
+    query = request.GET.get("q", "").strip()
+
+    if not query:
+        return JsonResponse(
+            {"error": "Please provide a search term using ?q="},
+            status=400
+        )
+
+    # -----------------------------
+    # 1. Get external exercise data
+    # -----------------------------
+    url = "https://api.exerciseapi.dev/v1/exercises"
+
+    params = {
+        "q": query,
+        "category": "physical_therapy",
+        "limit": 5,
+    }
+
+    headers = {
+        "X-API-Key": settings.EXERCISE_API_KEY
+    }
+
+    try:
+        response = requests.get(
+            url,
+            params=params,
+            headers=headers,
+            timeout=5
+        )
+
+        response.raise_for_status()
+        external_data = response.json()
+
+    except requests.exceptions.Timeout:
+        return JsonResponse(
+            {"error": "The exercise API timed out."},
+            status=504
+        )
+
+    except requests.exceptions.RequestException:
+        return JsonResponse(
+            {"error": "Unable to retrieve external exercise data."},
+            status=502
+        )
+
+    # -----------------------------
+    # 2. Process external results
+    # -----------------------------
+    external_results = []
+
+    for exercise in external_data.get("data", []):
+        external_results.append({
+            "name": exercise.get("name"),
+            "primary_muscles": exercise.get("primaryMuscles", []),
+        })
+
+    # -----------------------------
+    # 3. Search Rehab-It database
+    # -----------------------------
+    internal_exercises = Exercise.objects.filter(
+        name__icontains=query
+    )
+
+    internal_results = []
+
+    for exercise in internal_exercises:
+        internal_results.append({
+            "name": exercise.name,
+            "description": exercise.description,
+            "difficulty": exercise.difficulty,
+        })
+
+    # -----------------------------
+    # 4. Return combined analysis
+    # -----------------------------
+    return JsonResponse({
+        "query": query,
+
+        "external_results": external_results,
+
+        "rehab_it_results": internal_results,
+
+        "analysis": {
+            "external_match_count": len(external_results),
+            "internal_match_count": len(internal_results),
+            "total_match_count": len(external_results) + len(internal_results),
+            "average_internal_difficulty": (
+                round(
+                    sum(item["difficulty"] for item in internal_results)
+                    / len(internal_results),
+                    2
+                )
+                if internal_results
+                else None
+        ),
+    }
+    })
