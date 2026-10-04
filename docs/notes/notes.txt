@@ -46,3 +46,15 @@ How are we planning on creating an API for our project?
 What kind of data are we planning to serve?
 - Exercises (name, description, difficulty) and workout sessions (name, date, completed, and the exercises in it).
 - We didn't include user or evaluation data since that has people's injury info and the API is public.
+
+Assignment P1-A4: APIs, Vega-Lite Charts, Exports, Static Files, and Initial Deployment Progress 10/4/26
+- Integrated ExerciseAPI.dev into the Rehab-It Django project to retrieve external physical-therapy exercise data.
+- Added an API key using the .env file so credentials are not stored directly in the source code or pushed to GitHub.
+- Created a Django view that accepts a query parameter (?q=) and sends requests to the external API using requests.get(), params, and a 5-second timeout.
+- Added raise_for_status() and error handling for missing queries, request failures, and API timeouts.
+- Created an external exercise endpoint that returns exercise information as JSON.
+- Created an exercise analysis endpoint that combines live ExerciseAPI.dev results with exercises stored in the Rehab-It database without saving the external data.
+- Added processing and analytics including external match count, internal match count, total matches, and average internal exercise difficulty.
+- Tested the API using searches such as "knee" and "push" to verify external and internal exercise results.
+- Created an exercise-api Git branch and pushed the API implementation to GitHub.
+
