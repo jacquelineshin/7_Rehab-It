@@ -17,6 +17,8 @@ from rehab.views import (
     workoutSessionSearch,
     workoutSessionExerciseSearch,
     dataSummary,
+    external_exercise_search,
+    exercise_analysis,
 )
 from rehab.apiViews import (
     exerciseApi,
@@ -44,4 +46,6 @@ urlpatterns = [
     path("api/workoutSessions/", WorkoutSessionApi.as_view(), name="workoutSessionApi"),
     path("api/httpResponse/", httpResponseDemo, name="httpResponseDemo"),
     path("api/jsonResponse/", jsonResponseDemo, name="jsonResponseDemo"),
+    path("api/external-exercises/", external_exercise_search, name="external_exercise_search"),
+    path("api/exercise-analysis/", exercise_analysis, name="exercise_analysis"),
 ]
