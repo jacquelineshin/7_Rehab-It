@@ -2,8 +2,8 @@
 .idea/
 __pycache__/
 *.py[cod]
-*.sqlite3
 .venv/
+staticfiles/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -64,7 +64,6 @@ cover/
 # Django stuff:
 *.log
 local_settings.py
-db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
@@ -222,4 +221,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
->>>>>>> bc61396c63a4850694ca327b48e5e6f99f1c660a
