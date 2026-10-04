@@ -52,6 +52,13 @@ class ExerciseListView(ListView):
     model = Exercise
     template_name = "rehab/exercise_list.html"
     context_object_name = "exercises"
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        results = self.request.POST.get("results") or self.request.GET.get("results")
+        context["results"] = results
+        return context
 
 
 class ExerciseDetailView(DetailView):
@@ -73,6 +80,13 @@ class TrainingPlanDetailView(DetailView):
     model = TrainingPlan
     template_name = "rehab/training_plan_detail.html"
     context_object_name = "training_plan"
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        results = self.request.POST.get("results") or self.request.GET.get("results")
+        context["results"] = results
+        return context
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
