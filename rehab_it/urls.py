@@ -19,6 +19,8 @@ from rehab.views import (
     dataSummary,
     external_exercise_search,
     exercise_analysis,
+    exercise_chart_page,
+    exercise_difficulty_chart,
 )
 from rehab.apiViews import (
     exerciseApi,
@@ -48,4 +50,6 @@ urlpatterns = [
     path("api/jsonResponse/", jsonResponseDemo, name="jsonResponseDemo"),
     path("api/external-exercises/", external_exercise_search, name="external_exercise_search"),
     path("api/exercise-analysis/", exercise_analysis, name="exercise_analysis"),
+    path("exercise-chart/", exercise_chart_page, name="exercise_chart_page"),
+    path("exercise-chart.png", exercise_difficulty_chart, name="exercise_difficulty_chart"),
 ]

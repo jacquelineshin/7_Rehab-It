@@ -44,3 +44,6 @@ You can filter with these:
 - `/api/jsonResponse/` - uses JsonResponse, content type is `application/json`
 
 Both return the same exercise data, only the content type is different.
+## UI Improvements
+
+The Rehab-It interface was updated with custom CSS to create a more consistent and user-friendly design. The home, exercise list, and exercise difficulty dashboard use consistent colors, spacing, typography, and card-style layouts to improve readability and navigation. The exercise difficulty dashboard also displays exercise data as a visual chart, making it easier for users to understand the distribution of exercises across difficulty levels.
