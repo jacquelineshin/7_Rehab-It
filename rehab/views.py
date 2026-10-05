@@ -8,11 +8,14 @@ from django.db.models import Count
 from account.models import User
 from .models import Exercise, WorkoutSession, TrainingPlan
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from io import BytesIO
 import requests
 from django.conf import settings
 from django.http import JsonResponse
+
 
 
 def home(request):
