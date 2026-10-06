@@ -1,0 +1,29 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Workout Sessions by Date",
+  "width": 500,
+  "height": 300,
+  "data": {"url": "/api/sessionSummary/"},
+  "mark": {"type": "line", "point": true},
+  "encoding": {
+    "x": {
+      "field": "date",
+      "type": "temporal",
+      "title": "Date",
+      "scale": {"type": "utc"}
+    },
+    "y": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Number of Workout Sessions",
+      "axis": {
+        "format": "d",
+        "labelExpr": "datum.value % 1 == 0 ? datum.label : ''"
+      }
+    },
+    "tooltip": [
+      {"field": "date", "type": "temporal", "title": "Date", "timeUnit": "utcyearmonthdate"},
+      {"field": "count", "title": "Sessions"}
+    ]
+  }
+}

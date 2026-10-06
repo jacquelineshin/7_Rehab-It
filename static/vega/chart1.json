@@ -1,0 +1,29 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Exercises by Difficulty",
+  "width": 500,
+  "height": 300,
+  "data": {"url": "/api/summary/"},
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "difficulty",
+      "type": "ordinal",
+      "title": "Difficulty",
+      "axis": {"labelAngle": 0}
+    },
+    "y": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Number of Exercises",
+      "axis": {
+        "format": "d",
+        "labelExpr": "datum.value % 1 == 0 ? datum.label : ''"
+      }
+    },
+    "tooltip": [
+      {"field": "difficulty", "title": "Difficulty"},
+      {"field": "count", "title": "Exercises"}
+    ]
+  }
+}

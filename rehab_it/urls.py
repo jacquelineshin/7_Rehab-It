@@ -27,6 +27,13 @@ from rehab.apiViews import (
     WorkoutSessionApi,
     httpResponseDemo,
     jsonResponseDemo,
+    exerciseSummaryApi,
+    sessionSummaryApi,
+)
+from rehab.chartViews import (
+    vegaCharts,
+    vegaChart1,
+    vegaChart2,
 )
 
 urlpatterns = [
@@ -48,8 +55,13 @@ urlpatterns = [
     path("api/workoutSessions/", WorkoutSessionApi.as_view(), name="workoutSessionApi"),
     path("api/httpResponse/", httpResponseDemo, name="httpResponseDemo"),
     path("api/jsonResponse/", jsonResponseDemo, name="jsonResponseDemo"),
+    path("api/summary/", exerciseSummaryApi, name="exerciseSummaryApi"),
+    path("api/sessionSummary/", sessionSummaryApi, name="sessionSummaryApi"),
     path("api/external-exercises/", external_exercise_search, name="external_exercise_search"),
     path("api/exercise-analysis/", exercise_analysis, name="exercise_analysis"),
     path("exercise-chart/", exercise_chart_page, name="exercise_chart_page"),
     path("exercise-chart.png", exercise_difficulty_chart, name="exercise_difficulty_chart"),
+    path("vega-lite/", vegaCharts, name="vegaCharts"),
+    path("vega-lite/chart1.png", vegaChart1, name="vegaChart1"),
+    path("vega-lite/chart2.png", vegaChart2, name="vegaChart2"),
 ]
