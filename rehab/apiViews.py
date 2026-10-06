@@ -111,3 +111,59 @@ def jsonResponseDemo(request):
         })
 
     return JsonResponse(exerciseList, safe=False)
+
+
+def getExerciseSummary():
+    exercises = Exercise.objects.all().order_by("difficulty")
+    difficultyCounts = {}
+
+    for exercise in exercises:
+        if exercise.difficulty in difficultyCounts:
+            difficultyCounts[exercise.difficulty] += 1
+        else:
+            difficultyCounts[exercise.difficulty] = 1
+
+    summary = []
+
+    for difficulty in difficultyCounts:
+        summary.append({
+            "difficulty": difficulty,
+            "count": difficultyCounts[difficulty],
+        })
+
+    return summary
+
+
+def getSessionSummary():
+    sessions = WorkoutSession.objects.all().order_by("date")
+    dateCounts = {}
+
+    for session in sessions:
+        date = str(session.date)
+
+        if date in dateCounts:
+            dateCounts[date] += 1
+        else:
+            dateCounts[date] = 1
+
+    summary = []
+
+    for date in dateCounts:
+        summary.append({
+            "date": date,
+            "count": dateCounts[date],
+        })
+
+    return summary
+
+
+def exerciseSummaryApi(request):
+    response = JsonResponse(getExerciseSummary(), safe=False)
+    response["Access-Control-Allow-Origin"] = "*"
+    return response
+
+
+def sessionSummaryApi(request):
+    response = JsonResponse(getSessionSummary(), safe=False)
+    response["Access-Control-Allow-Origin"] = "*"
+    return response

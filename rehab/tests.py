@@ -39,3 +39,26 @@ class ApiTests(TestCase):
 
         self.assertEqual(httpResponse["Content-Type"], "text/html; charset=utf-8")
         self.assertEqual(jsonResponse["Content-Type"], "application/json")
+
+    def testSummaryApis(self):
+        response = self.client.get("/api/summary/")
+        self.assertEqual(response.json(), [
+            {"difficulty": 3, "count": 1},
+            {"difficulty": 7, "count": 1},
+        ])
+
+        response = self.client.get("/api/sessionSummary/")
+        self.assertEqual(response.json(), [
+            {"date": "2026-09-01", "count": 1},
+            {"date": "2026-09-03", "count": 1},
+        ])
+
+    def testChartPages(self):
+        response = self.client.get("/vega-lite/")
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get("/vega-lite/chart1.png")
+        self.assertEqual(response["Content-Type"], "image/png")
+
+        response = self.client.get("/vega-lite/chart2.png")
+        self.assertEqual(response["Content-Type"], "image/png")

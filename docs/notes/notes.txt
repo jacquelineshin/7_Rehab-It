@@ -58,3 +58,17 @@ Assignment P1-A4: APIs, Vega-Lite Charts, Exports, Static Files, and Initial Dep
 - Tested the API using searches such as "knee" and "push" to verify external and internal exercise results.
 - Created an exercise-api Git branch and pushed the API implementation to GitHub.
 
+
+P1-A4 Part 1 - Internal API and Vega-Lite Charts
+- Added two new API endpoints in rehab/apiViews.py that return simple JSON lists for charts.
+  - /api/summary/ returns the number of exercises for each difficulty, like [{"difficulty": 4, "count": 1}]
+  - /api/sessionSummary/ returns the number of workout sessions for each date, like [{"date": "2026-09-07", "count": 3}]
+- Made two Vega-Lite charts. Chart 1 is a bar chart of exercises by difficulty and chart 2 is a line chart of
+  workout sessions by date.
+- Both charts use data: {"url": ...} to get the data from our API, so there is no inline data.
+- The specs are saved in static/vega/chart1.json and static/vega/chart2.json and the pages load them with vegaEmbed.
+- Both charts are embedded on the /vega-lite/ page. There is a Charts link in the nav bar.
+- Each chart also has its own image endpoint, /vega-lite/chart1.png and /vega-lite/chart2.png. These use the
+  vl-convert-python package to turn the same Vega-Lite spec into a PNG, so we added it to requirements.txt.
+- To use a spec in the Vega-Lite editor the data url has to be the full url (ex. http://127.0.0.1:8000/api/summary/).
+  We added the Access-Control-Allow-Origin header to the two summary APIs so other sites like the editor can read them.
