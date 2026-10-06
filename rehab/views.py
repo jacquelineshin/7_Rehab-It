@@ -16,6 +16,8 @@ from io import BytesIO
 import requests
 from django.conf import settings
 from django.http import JsonResponse
+import csv
+from datetime import datetime
 
 
 def home(request):
@@ -408,3 +410,43 @@ def exercise_analysis(request):
             "overlap_count": len(overlapping),
         },
     })
+
+class ReportsWorkoutView(TemplateView):
+    template_name = "rehab/reports_workout.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workoutsession_exercises"] = (
+            WorkoutSession.objects
+            .values("name")
+            .order_by("name")
+        )
+
+class ReportsRehabView(TemplateView):
+    template_name = "rehab/reports_workout.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workoutsession_exercises"] = (
+            WorkoutSession.objects
+            .values("name")
+        )
+        context["trainingplan_workoutsessions"] = (
+            TrainingPlan.objects
+            .values("name")
+        )
+        return context
+
+def rehab_csv(request):
+    time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    rehab_file = f"rehab_{time}.csv"
+    rehab_response = HttpResponse(content_type="text/csv")
+    rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
+    rehab_response
+    rehab_writer = csv.writer(rehab_response)
+    rehab_writer.writerow(["name"])
+    rehab_rows = (
+        Exercise.objects
+        .values_list("name")
+    )
+    for table in rehab_rows:
+        rehab_writer.writerow(table)
+    return rehab_response
