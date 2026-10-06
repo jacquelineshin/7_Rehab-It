@@ -9,13 +9,13 @@ from account.models import User
 from .models import Exercise, WorkoutSession, TrainingPlan
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from io import BytesIO
 import requests
 from django.conf import settings
 from django.http import JsonResponse
-
 
 
 def home(request):
@@ -58,8 +58,10 @@ class ExerciseListView(ListView):
     model = Exercise
     template_name = "rehab/exercise_list.html"
     context_object_name = "exercises"
+
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         results = self.request.POST.get("results") or self.request.GET.get("results")
@@ -86,19 +88,14 @@ class TrainingPlanDetailView(DetailView):
     model = TrainingPlan
     template_name = "rehab/training_plan_detail.html"
     context_object_name = "training_plan"
+
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        results = self.request.POST.get("results") or self.request.GET.get("results")
-        context["results"] = results
-        return context
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        context["results"] = self.request.POST.get("results") or self.request.GET.get("results")
         context["workout_sessions"] = self.object.workout_sessions.all()
-
         return context
 
 
@@ -109,9 +106,7 @@ class WorkoutSessionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context["exercises"] = self.object.exercises.all()
-
         return context
 
 
@@ -178,9 +173,11 @@ def exercise_difficulty_chart(request):
     counts = [item["count"] for item in exercise_counts]
 
     difficulty_labels = {
-        1: "Easy",
-        2: "Moderate",
-        3: "Difficult",
+        1: "Very Easy",
+        2: "Easy",
+        3: "Moderate",
+        4: "Difficult",
+        5: "Very Difficult",
     }
 
     labels = [
@@ -308,6 +305,22 @@ def dataSummary(request):
         "rehab/data_summary.html",
         context
     )
+
+
+EXTERNAL_URL = "https://api.exerciseapi.dev/v1/exercises"
+
+
+def fetch_external_exercises(query):
+    response = requests.get(
+        EXTERNAL_URL,
+        params={"q": query, "category": "physical_therapy", "limit": 5},
+        headers={"X-API-Key": settings.EXERCISE_API_KEY},
+        timeout=5,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
 def external_exercise_search(request):
     query = request.GET.get("q", "").strip()
 
@@ -317,42 +330,15 @@ def external_exercise_search(request):
             status=400
         )
 
-    url = "https://api.exerciseapi.dev/v1/exercises"
-
-    params = {
-        "q": query,
-        "category": "physical_therapy",
-        "limit": 5,
-    }
-
-    headers = {
-        "X-API-Key": settings.EXERCISE_API_KEY
-    }
-
     try:
-        response = requests.get(
-            url,
-            params=params,
-            headers=headers,
-            timeout=5
-        )
-
-        response.raise_for_status()
-        data = response.json()
-
+        data = fetch_external_exercises(query)
     except requests.exceptions.Timeout:
-        return JsonResponse(
-            {"error": "The exercise API timed out."},
-            status=504
-        )
-
+        return JsonResponse({"error": "The exercise API timed out."}, status=504)
     except requests.exceptions.RequestException:
-        return JsonResponse(
-            {"error": "Unable to retrieve exercise data."},
-            status=502
-        )
+        return JsonResponse({"error": "Unable to retrieve exercise data."}, status=502)
 
     return JsonResponse(data)
+
 
 def exercise_analysis(request):
     query = request.GET.get("q", "").strip()
@@ -363,93 +349,62 @@ def exercise_analysis(request):
             status=400
         )
 
-    # -----------------------------
     # 1. Get external exercise data
-    # -----------------------------
-    url = "https://api.exerciseapi.dev/v1/exercises"
-
-    params = {
-        "q": query,
-        "category": "physical_therapy",
-        "limit": 5,
-    }
-
-    headers = {
-        "X-API-Key": settings.EXERCISE_API_KEY
-    }
-
     try:
-        response = requests.get(
-            url,
-            params=params,
-            headers=headers,
-            timeout=5
-        )
-
-        response.raise_for_status()
-        external_data = response.json()
-
+        external_data = fetch_external_exercises(query)
     except requests.exceptions.Timeout:
-        return JsonResponse(
-            {"error": "The exercise API timed out."},
-            status=504
-        )
-
+        return JsonResponse({"error": "The exercise API timed out."}, status=504)
     except requests.exceptions.RequestException:
         return JsonResponse(
             {"error": "Unable to retrieve external exercise data."},
             status=502
         )
 
-    # -----------------------------
     # 2. Process external results
-    # -----------------------------
     external_results = []
-
     for exercise in external_data.get("data", []):
         external_results.append({
             "name": exercise.get("name"),
             "primary_muscles": exercise.get("primaryMuscles", []),
         })
 
-    # -----------------------------
     # 3. Search Rehab-It database
-    # -----------------------------
-    internal_exercises = Exercise.objects.filter(
-        name__icontains=query
-    )
-
     internal_results = []
-
-    for exercise in internal_exercises:
+    for exercise in Exercise.objects.filter(name__icontains=query):
         internal_results.append({
             "name": exercise.name,
             "description": exercise.description,
             "difficulty": exercise.difficulty,
         })
 
-    # -----------------------------
-    # 4. Return combined analysis
-    # -----------------------------
+    # 4. Compare the two sources
+    internal_names = {item["name"].lower() for item in internal_results}
+    overlapping = [
+        item["name"] for item in external_results
+        if item["name"] and item["name"].lower() in internal_names
+    ]
+
+    average_difficulty = (
+        round(
+            sum(item["difficulty"] for item in internal_results)
+            / len(internal_results),
+            2
+        )
+        if internal_results
+        else None
+    )
+
+    # 5. Return combined analysis
     return JsonResponse({
         "query": query,
-
         "external_results": external_results,
-
         "rehab_it_results": internal_results,
-
         "analysis": {
             "external_match_count": len(external_results),
             "internal_match_count": len(internal_results),
             "total_match_count": len(external_results) + len(internal_results),
-            "average_internal_difficulty": (
-                round(
-                    sum(item["difficulty"] for item in internal_results)
-                    / len(internal_results),
-                    2
-                )
-                if internal_results
-                else None
-        ),
-    }
+            "average_internal_difficulty": average_difficulty,
+            "overlapping_exercise_names": overlapping,
+            "overlap_count": len(overlapping),
+        },
     })
