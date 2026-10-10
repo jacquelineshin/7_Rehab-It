@@ -65,7 +65,7 @@ urlpatterns = [
     path("vega-lite/", vegaCharts, name="vegaCharts"),
     path("vega-lite/chart1.png", vegaChart1, name="vegaChart1"),
     path("vega-lite/chart2.png", vegaChart2, name="vegaChart2"),
-    path("login/", auth_views.LoginView.as_view(template_name="account/../templates/registration/login.html"), name="login"),
+    path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("reports_rehab", ReportsRehabView.as_view(), name="reports_rehab"),
     path("export/rehab_csv", rehab_csv, name="export_rehab_csv"),
