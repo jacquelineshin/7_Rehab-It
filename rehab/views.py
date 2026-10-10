@@ -8,15 +8,14 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, csv
 from django.shortcuts import render
 from django.template import loader
 from django.views import View
 from django.views.generic import ListView, DetailView
-
 from .decorators import api_login_required
 from .models import Exercise, WorkoutSession, TrainingPlan
-
+from datetime import datetime
 
 # ---------- PUBLIC pages ----------
 
@@ -393,3 +392,43 @@ def exercise_analysis(request):
             "overlap_count": len(overlapping),
         },
     })
+
+class ReportsWorkoutView(TemplateView):
+    template_name = "rehab/reports_workout.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workoutsession_exercises"] = (
+            WorkoutSession.objects
+            .values("name")
+            .order_by("name")
+        )
+
+class ReportsRehabView(TemplateView):
+    template_name = "rehab/reports_workout.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workoutsession_exercises"] = (
+            WorkoutSession.objects
+            .values("name")
+        )
+        context["trainingplan_workoutsessions"] = (
+            TrainingPlan.objects
+            .values("name")
+        )
+        return context
+
+def rehab_csv(request):
+    time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    rehab_file = f"rehab_{time}.csv"
+    rehab_response = HttpResponse(content_type="text/csv")
+    rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
+    rehab_response
+    rehab_writer = csv.writer(rehab_response)
+    rehab_writer.writerow(["name"])
+    rehab_rows = (
+        Exercise.objects
+        .values_list("name")
+    )
+    for table in rehab_rows:
+        rehab_writer.writerow(table)
+    return rehab_response

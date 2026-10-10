@@ -1,0 +1,35 @@
+{% extends "rehab/base.html" %}
+{% block title %}Reports Rehab{% endblock %}
+{% block content %}
+    <h1>Reports Rehab</h1>
+    <div>
+        <div>Workout Exercises</div>
+        <table>
+            <thead>Workout Exercises</thead>
+            <tbody>
+                {% for table in workoutsession_exercises %}
+                    <tr><td>{{ table.name }}</td></tr>
+                {% empty %}
+                    <tr><td>Workout Exercises data does not exist.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <div>Training Plan Workout Sessions</div>
+        <table>
+            <thead>Training Plan Workout Sessions</thead>
+            <tbody>
+                {% for table in trainingplan_workoutsessions %}
+                    <tr><td>{{ table.name }}</td></tr>
+                {% empty %}
+                    <tr><td>Training Plan Workout Sessions data does not exist.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <a href="">CSV</a>
+        <a href="">JSON</a>
+    </div>
+{% endblock %}

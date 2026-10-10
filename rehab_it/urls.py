@@ -21,6 +21,8 @@ from rehab.views import (
     exercise_analysis,
     exercise_chart_page,
     exercise_difficulty_chart,
+    ReportsRehabView,
+    rehab_csv,
 )
 from rehab.apiViews import (
     exerciseApi,
@@ -56,8 +58,6 @@ urlpatterns = [
     path("api/workoutSessions/", WorkoutSessionApi.as_view(), name="workoutSessionApi"),
     path("api/httpResponse/", httpResponseDemo, name="httpResponseDemo"),
     path("api/jsonResponse/", jsonResponseDemo, name="jsonResponseDemo"),
-    path("api/summary/", exerciseSummaryApi, name="exerciseSummaryApi"),
-    path("api/sessionSummary/", sessionSummaryApi, name="sessionSummaryApi"),
     path("api/external-exercises/", external_exercise_search, name="external_exercise_search"),
     path("api/exercise-analysis/", exercise_analysis, name="exercise_analysis"),
     path("exercise-chart/", exercise_chart_page, name="exercise_chart_page"),
@@ -67,5 +67,6 @@ urlpatterns = [
     path("vega-lite/chart2.png", vegaChart2, name="vegaChart2"),
     path("login/", auth_views.LoginView.as_view(template_name="account/../templates/registration/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-
+    path("reports_rehab", ReportsRehabView.as_view(), name="reports_rehab"),
+    path("export/rehab_csv", rehab_csv, name="export_rehab_csv"),
 ]
