@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
-from django.http import HttpResponse, JsonResponse,
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
 from django.views import View
