@@ -17,6 +17,7 @@ from .decorators import api_login_required
 from .models import Exercise, WorkoutSession, TrainingPlan
 import csv
 from datetime import datetime
+from django.views.generic import ListView, DetailView, TemplateView
 # ---------- PUBLIC pages ----------
 
 def home(request):
