@@ -1,11 +1,24 @@
+
+
 import json
 
+from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 
+from .decorators import api_login_required, ApiLoginRequiredMixin
 from .models import Exercise, WorkoutSession
 
+DIFFICULTY_LABELS = {
+    1: "Very Easy",
+    2: "Easy",
+    3: "Moderate",
+    4: "Difficult",
+    5: "Very Difficult",
+}
 
+
+@api_login_required
 def exerciseApi(request):
     exercises = Exercise.objects.all()
 
@@ -48,7 +61,7 @@ def exerciseApi(request):
     })
 
 
-class WorkoutSessionApi(View):
+class WorkoutSessionApi(ApiLoginRequiredMixin, View):
     def get(self, request):
         sessions = WorkoutSession.objects.all()
 
@@ -85,6 +98,7 @@ class WorkoutSessionApi(View):
         })
 
 
+@api_login_required
 def httpResponseDemo(request):
     exercises = Exercise.objects.all()
     exerciseList = []
@@ -99,6 +113,7 @@ def httpResponseDemo(request):
     return HttpResponse(json.dumps(exerciseList))
 
 
+@api_login_required
 def jsonResponseDemo(request):
     exercises = Exercise.objects.all()
     exerciseList = []
@@ -114,24 +129,20 @@ def jsonResponseDemo(request):
 
 
 def getExerciseSummary():
-    exercises = Exercise.objects.all().order_by("difficulty")
-    difficultyCounts = {}
-
-    for exercise in exercises:
-        if exercise.difficulty in difficultyCounts:
-            difficultyCounts[exercise.difficulty] += 1
-        else:
-            difficultyCounts[exercise.difficulty] = 1
-
-    summary = []
-
-    for difficulty in difficultyCounts:
-        summary.append({
-            "difficulty": difficulty,
-            "count": difficultyCounts[difficulty],
-        })
-
-    return summary
+    rows = (
+        Exercise.objects
+        .values("difficulty")
+        .annotate(count=Count("exercise_id"))
+        .order_by("difficulty")
+    )
+    return [
+        {
+            "difficulty": r["difficulty"],
+            "label": DIFFICULTY_LABELS.get(r["difficulty"], str(r["difficulty"])),
+            "count": r["count"],
+        }
+        for r in rows
+    ]
 
 
 def getSessionSummary():
@@ -158,12 +169,12 @@ def getSessionSummary():
 
 
 def exerciseSummaryApi(request):
+    """PUBLIC endpoint: aggregate counts only, no login required."""
     response = JsonResponse(getExerciseSummary(), safe=False)
     response["Access-Control-Allow-Origin"] = "*"
     return response
 
 
+@api_login_required
 def sessionSummaryApi(request):
-    response = JsonResponse(getSessionSummary(), safe=False)
-    response["Access-Control-Allow-Origin"] = "*"
-    return response
+    return JsonResponse(getSessionSummary(), safe=False)

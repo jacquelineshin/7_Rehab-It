@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,14 +17,39 @@
     <h2>Exercises by Difficulty</h2>
 
     <div class="chart-container">
-        <img src="{% url 'exercise_difficulty_chart' %}"
-             alt="Bar chart showing the number of exercises at each difficulty level">
+        <canvas id="difficultyChart"
+                role="img"
+                aria-label="Bar chart showing the number of exercises at each difficulty level"></canvas>
     </div>
 </main>
 
 <footer>
     Rehab-It Exercise Analytics
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<script>
+fetch("{% url 'exerciseSummaryApi' %}")
+    .then(response => response.json())
+    .then(data => {
+        new Chart(document.getElementById("difficultyChart"), {
+            type: "bar",
+            data: {
+                labels: data.map(d => d.label),
+                datasets: [{
+                    label: "Exercises",
+                    data: data.map(d => d.count)
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    })
+    .catch(error => console.error("Could not load chart data:", error));
+</script>
 
 </body>
 </html>

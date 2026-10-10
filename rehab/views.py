@@ -1,27 +1,36 @@
+from io import BytesIO
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import requests
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.template import loader
 from django.views import View
 from django.views.generic import ListView, DetailView
-from django.db.models import Count
 
-from account.models import User
+from .decorators import api_login_required
 from .models import Exercise, WorkoutSession, TrainingPlan
 
-import matplotlib
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from io import BytesIO
-import requests
-from django.conf import settings
-from django.http import JsonResponse
-
+# ---------- PUBLIC pages ----------
 
 def home(request):
     return render(request, "rehab/home.html")
 
 
+def exercise_chart_page(request):
+    return render(request, "rehab/exercise_chart.html")
+
+
+# ---------- PROTECTED pages ----------
+
+@login_required
 def exerciseManual(request):
     template = loader.get_template("rehab/exercise_list.html")
     exercises = Exercise.objects.all()
@@ -33,6 +42,7 @@ def exerciseManual(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def exerciseList(request):
     exercises = Exercise.objects.all()
 
@@ -43,7 +53,7 @@ def exerciseList(request):
     )
 
 
-class ExerciseBaseView(View):
+class ExerciseBaseView(LoginRequiredMixin, View):
     def get(self, request):
         exercises = Exercise.objects.all()
 
@@ -54,7 +64,7 @@ class ExerciseBaseView(View):
         )
 
 
-class ExerciseListView(ListView):
+class ExerciseListView(LoginRequiredMixin, ListView):
     model = Exercise
     template_name = "rehab/exercise_list.html"
     context_object_name = "exercises"
@@ -69,13 +79,13 @@ class ExerciseListView(ListView):
         return context
 
 
-class ExerciseDetailView(DetailView):
+class ExerciseDetailView(LoginRequiredMixin, DetailView):
     model = Exercise
     template_name = "rehab/exercise_detail.html"
     context_object_name = "exercise"
 
 
-class TrainingPlanListView(ListView):
+class TrainingPlanListView(LoginRequiredMixin, ListView):
     model = TrainingPlan
     template_name = "rehab/training_plan_history.html"
     context_object_name = "training_plans"
@@ -84,7 +94,7 @@ class TrainingPlanListView(ListView):
         return TrainingPlan.objects.filter(active=False)
 
 
-class TrainingPlanDetailView(DetailView):
+class TrainingPlanDetailView(LoginRequiredMixin, DetailView):
     model = TrainingPlan
     template_name = "rehab/training_plan_detail.html"
     context_object_name = "training_plan"
@@ -99,7 +109,7 @@ class TrainingPlanDetailView(DetailView):
         return context
 
 
-class WorkoutSessionDetailView(DetailView):
+class WorkoutSessionDetailView(LoginRequiredMixin, DetailView):
     model = WorkoutSession
     template_name = "rehab/workout_session_detail.html"
     context_object_name = "workout_session"
@@ -110,7 +120,7 @@ class WorkoutSessionDetailView(DetailView):
         return context
 
 
-class TrainingPlanDashboardView(View):
+class TrainingPlanDashboardView(LoginRequiredMixin, View):
     def get(self, request):
         plan = TrainingPlan.objects.filter(active=True).first()
 
@@ -146,77 +156,7 @@ class TrainingPlanDashboardView(View):
         )
 
 
-def exercise_chart_page(request):
-    return render(request, "rehab/exercise_chart.html")
-
-
-def exercise_difficulty_data(request):
-    exercise_counts = (
-        Exercise.objects
-        .values("difficulty")
-        .annotate(count=Count("exercise_id"))
-        .order_by("difficulty")
-    )
-
-    return JsonResponse(list(exercise_counts), safe=False)
-
-
-def exercise_difficulty_chart(request):
-    exercise_counts = (
-        Exercise.objects
-        .values("difficulty")
-        .annotate(count=Count("exercise_id"))
-        .order_by("difficulty")
-    )
-
-    difficulties = [item["difficulty"] for item in exercise_counts]
-    counts = [item["count"] for item in exercise_counts]
-
-    difficulty_labels = {
-        1: "Very Easy",
-        2: "Easy",
-        3: "Moderate",
-        4: "Difficult",
-        5: "Very Difficult",
-    }
-
-    labels = [
-        difficulty_labels.get(d, str(d))
-        for d in difficulties
-    ]
-
-    plt.figure(figsize=(8, 5))
-
-    plt.bar(
-        labels,
-        counts,
-        label="Exercises"
-    )
-
-    plt.title("Exercises by Difficulty")
-    plt.xlabel("Difficulty Level")
-    plt.ylabel("Number of Exercises")
-
-    plt.legend(["Exercises"])
-    plt.tight_layout()
-
-    buffer = BytesIO()
-
-    plt.savefig(
-        buffer,
-        format="png"
-    )
-
-    plt.close()
-
-    buffer.seek(0)
-
-    return HttpResponse(
-        buffer.getvalue(),
-        content_type="image/png"
-    )
-
-
+@login_required
 def exerciseSearch(request):
     query = request.GET.get("q", "")
 
@@ -239,6 +179,7 @@ def exerciseSearch(request):
     )
 
 
+@login_required
 def workoutSessionSearch(request):
     sessions = WorkoutSession.objects.all()
 
@@ -261,6 +202,7 @@ def workoutSessionSearch(request):
     )
 
 
+@login_required
 def workoutSessionExerciseSearch(request):
     query = request.GET.get("q", "")
 
@@ -283,6 +225,7 @@ def workoutSessionExerciseSearch(request):
     )
 
 
+@login_required
 def dataSummary(request):
     total_exercises = Exercise.objects.count()
 
@@ -307,6 +250,46 @@ def dataSummary(request):
     )
 
 
+@login_required
+def exercise_difficulty_chart(request):
+    exercise_counts = (
+        Exercise.objects
+        .values("difficulty")
+        .annotate(count=Count("exercise_id"))
+        .order_by("difficulty")
+    )
+
+    difficulties = [item["difficulty"] for item in exercise_counts]
+    counts = [item["count"] for item in exercise_counts]
+
+    difficulty_labels = {
+        1: "Very Easy",
+        2: "Easy",
+        3: "Moderate",
+        4: "Difficult",
+        5: "Very Difficult",
+    }
+
+    labels = [difficulty_labels.get(d, str(d)) for d in difficulties]
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(labels, counts, label="Exercises")
+    plt.title("Exercises by Difficulty")
+    plt.xlabel("Difficulty Level")
+    plt.ylabel("Number of Exercises")
+    plt.legend(["Exercises"])
+    plt.tight_layout()
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    plt.close()
+    buffer.seek(0)
+
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+
+# ---------- PROTECTED JSON APIs (use the external API key) ----------
+
 EXTERNAL_URL = "https://api.exerciseapi.dev/v1/exercises"
 
 
@@ -321,6 +304,7 @@ def fetch_external_exercises(query):
     return response.json()
 
 
+@api_login_required
 def external_exercise_search(request):
     query = request.GET.get("q", "").strip()
 
@@ -340,6 +324,7 @@ def external_exercise_search(request):
     return JsonResponse(data)
 
 
+@api_login_required
 def exercise_analysis(request):
     query = request.GET.get("q", "").strip()
 

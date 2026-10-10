@@ -4,5 +4,27 @@
 
     <h1>Welcome to Rehab-It!</h1>
     <p>This is the home page.</p>
+<section>
+    <h1>Exercise Library at a Glance</h1>
+    <p id="summary">Loading…</p>
+</section>
 
+<script>
+fetch("{% url 'exerciseSummaryApi' %}")
+    .then(r => r.json())
+    .then(rows => {
+        if (!rows.length) {
+            document.getElementById("summary").textContent = "No exercises yet.";
+            return;
+        }
+        const total = rows.reduce((sum, r) => sum + r.count, 0);
+        const top = rows.reduce((a, b) => (b.count > a.count ? b : a));
+        document.getElementById("summary").textContent =
+            `${total} exercises. Most common level: ${top.label} (${top.count}).`;
+    })
+    .catch(() => {
+        document.getElementById("summary").textContent = "Could not load summary.";
+    });
+</script>
 {% endblock %}
+
