@@ -8,15 +8,15 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
-from django.http import HttpResponse, JsonResponse, csv
+from django.http import HttpResponse, JsonResponse,
 from django.shortcuts import render
 from django.template import loader
 from django.views import View
 from django.views.generic import ListView, DetailView
 from .decorators import api_login_required
 from .models import Exercise, WorkoutSession, TrainingPlan
+import csv
 from datetime import datetime
-
 # ---------- PUBLIC pages ----------
 
 def home(request):
