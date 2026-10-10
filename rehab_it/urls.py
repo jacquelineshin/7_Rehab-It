@@ -69,4 +69,9 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("reports_rehab", ReportsRehabView.as_view(), name="reports_rehab"),
     path("export/rehab_csv", rehab_csv, name="export_rehab_csv"),
+    path("api/jsonResponse/", jsonResponseDemo, name="jsonResponseDemo"),
+    path("api/summary/", exerciseSummaryApi, name="exerciseSummaryApi"),
+    path("api/sessionSummary/", sessionSummaryApi, name="sessionSummaryApi"),
+    path("api/external-exercises/", external_exercise_search, name="external_exercise_search"),
 ]
+
