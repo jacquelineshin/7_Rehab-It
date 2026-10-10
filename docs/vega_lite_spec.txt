@@ -1,0 +1,31 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Exercises by Difficulty (live from production API)",
+  "width": 500,
+  "height": 300,
+  "data": {
+    "url": "https://jacquelineshin.pythonanywhere.com/api/summary/"
+  },
+  "mark": { "type": "bar", "tooltip": true },
+  "encoding": {
+    "x": {
+      "field": "label",
+      "type": "nominal",
+      "title": "Difficulty level",
+      "scale": {
+        "domain": ["Very Easy", "Easy", "Moderate", "Difficult", "Very Difficult"]
+      },
+      "axis": { "labelAngle": 0 }
+    },
+    "y": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Number of exercises"
+    },
+    "color": {
+      "field": "label",
+      "type": "nominal",
+      "legend": null
+    }
+  }
+}
