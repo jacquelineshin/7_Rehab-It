@@ -1,9 +1,12 @@
+import csv
+from datetime import datetime
 from io import BytesIO
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import requests
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,12 +15,11 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
 from django.views import View
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
+
 from .decorators import api_login_required
 from .models import Exercise, WorkoutSession, TrainingPlan
-import csv
-from datetime import datetime
-from django.views.generic import ListView, DetailView, TemplateView
+
 # ---------- PUBLIC pages ----------
 
 def home(request):
@@ -394,8 +396,10 @@ def exercise_analysis(request):
         },
     })
 
+
 class ReportsWorkoutView(TemplateView):
     template_name = "rehab/reports_workout.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["workoutsession_exercises"] = (
@@ -403,6 +407,8 @@ class ReportsWorkoutView(TemplateView):
             .values("name")
             .order_by("name")
         )
+        return context
+
 
 class ReportsRehabView(TemplateView):
     template_name = "rehab/reports_workout.html"

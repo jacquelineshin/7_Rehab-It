@@ -1,0 +1,20 @@
+
+{% extends "rehab/base.html" %}
+
+{% block title %}Log In{% endblock %}
+
+{% block rehab_content %}
+<h1>Log In</h1>
+<p>Welcome back to Rehab-It!</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <p>Username<br>{{ form.username }}</p>
+    <p>Password<br>{{ form.password }}</p>
+
+    <button type="submit">Log In</button>
+</form>
+
+<p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a>.</p>
+{% endblock %}

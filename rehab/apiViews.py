@@ -1,5 +1,4 @@
 
-
 import json
 
 from django.db.models import Count
@@ -8,6 +7,7 @@ from django.views import View
 
 from .decorators import api_login_required, ApiLoginRequiredMixin
 from .models import Exercise, WorkoutSession
+
 
 DIFFICULTY_LABELS = {
     1: "Very Easy",
@@ -74,7 +74,9 @@ class WorkoutSessionApi(ApiLoginRequiredMixin, View):
             sessions = sessions.filter(completed=False)
 
         if exercise:
-            sessions = sessions.filter(exercises__name__icontains=exercise).distinct()
+            sessions = sessions.filter(
+                exercises__name__icontains=exercise
+            ).distinct()
 
         sessionList = []
 
@@ -135,10 +137,13 @@ def getExerciseSummary():
         .annotate(count=Count("exercise_id"))
         .order_by("difficulty")
     )
+
     return [
         {
             "difficulty": r["difficulty"],
-            "label": DIFFICULTY_LABELS.get(r["difficulty"], str(r["difficulty"])),
+            "label": DIFFICULTY_LABELS.get(
+                r["difficulty"], str(r["difficulty"])
+            ),
             "count": r["count"],
         }
         for r in rows
@@ -169,7 +174,7 @@ def getSessionSummary():
 
 
 def exerciseSummaryApi(request):
-    """PUBLIC endpoint: aggregate counts only, no login required."""
+    # Public endpoint: aggregate counts only, no login required.
     response = JsonResponse(getExerciseSummary(), safe=False)
     response["Access-Control-Allow-Origin"] = "*"
     return response
