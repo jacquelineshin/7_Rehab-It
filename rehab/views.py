@@ -32,7 +32,6 @@ def exercise_chart_page(request):
 
 # ---------- PROTECTED pages ----------
 
-@login_required
 def exerciseManual(request):
     template = loader.get_template("rehab/exercise_list.html")
     exercises = Exercise.objects.all()
