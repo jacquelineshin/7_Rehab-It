@@ -438,3 +438,19 @@ def rehab_csv(request):
     for table in rehab_rows:
         rehab_writer.writerow(table)
     return rehab_response
+
+def rehab_json(request):
+    json_data = list(
+        Exercise.objects
+        .values("name")
+    )
+    json_dictionary = {
+        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "recorded_at": len(json_data),
+        "exercises": json_data,
+    }
+    rehab_response = JsonResponse(json_dictionary)
+    time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    rehab_file = f"rehab_{time}.json"
+    rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
+    return rehab_response

@@ -21,7 +21,7 @@ from rehab.views import (
     exercise_chart_page,
     exercise_difficulty_chart,
     ReportsRehabView,
-    rehab_csv,
+    rehab_csv, rehab_json,
 )
 from rehab.apiViews import (
     exerciseApi,
@@ -67,6 +67,7 @@ urlpatterns = [
     path("data-summary/", dataSummary, name="data_summary"),
     path("reports_rehab", ReportsRehabView.as_view(), name="reports_rehab"),
     path("export/rehab_csv", rehab_csv, name="export_rehab_csv"),
+    path("export/rehab_json", rehab_json, name="export_rehab_json"),
 
     # APIs
     path("api/exercises/", exerciseApi, name="exerciseApi"),
