@@ -424,8 +424,8 @@ class ReportsRehabView(TemplateView):
         return context
 
 def rehab_csv(request):
-    time = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    rehab_file = f"rehab_{time}.csv"
+    rehab_csv_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    rehab_file = f"rehab_{rehab_csv_time}.csv"
     rehab_response = HttpResponse(content_type="text/csv")
     rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
     rehab_response
@@ -440,17 +440,17 @@ def rehab_csv(request):
     return rehab_response
 
 def rehab_json(request):
-    json_data = list(
+    rehab_json_data = list(
         Exercise.objects
         .values("name")
     )
-    json_dictionary = {
+    rehab_json_information = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
-        "recorded_at": len(json_data),
-        "exercises": json_data,
+        "recorded_at": len(rehab_json_data),
+        "exercises": rehab_json_data,
     }
-    rehab_response = JsonResponse(json_dictionary)
-    time = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    rehab_file = f"rehab_{time}.json"
+    rehab_response = JsonResponse(rehab_json_information)
+    rehab_json_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    rehab_file = f"rehab_{rehab_json_time}.json"
     rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
     return rehab_response
