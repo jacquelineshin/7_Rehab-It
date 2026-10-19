@@ -5,3 +5,6 @@ vl-convert-python
 requests
 gunicorn
 whitenoise
+torch
+transformers
+
