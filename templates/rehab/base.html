@@ -18,6 +18,8 @@
             <a href="{% url 'training_plan_history' %}">Training Plan History</a>
             <a href="{% url 'exercise_chart_page' %}">Exercise Dashboard</a>
             <a href="{% url 'reports_rehab' %}">Reports Rehab</a>
+            <a href="{% url 'askRehab' %}">Ask Rehab-It</a>
+            <a href="{% url 'exerciseCoach' %}">Exercise Coach</a>
 
             <form method="post" action="{% url 'logout' %}" style="display: inline;">
                 {% csrf_token %}

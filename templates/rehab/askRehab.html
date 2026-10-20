@@ -1,0 +1,33 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}Ask Rehab-It{% endblock %}
+
+{% block rehab_content %}
+
+<h1>Ask Rehab-It</h1>
+
+<p>
+    Ask a question about exercise or recovery. This answer comes from a small AI model
+    ({{ modelName }}) running on our own server.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <textarea name="question" rows="4" cols="60" maxlength="500"
+              placeholder="e.g. My knee is sore the day after squats. What should I do?" required>{{ question }}</textarea>
+    <br>
+    <button type="submit">Ask</button>
+</form>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+{% if answer %}
+    <h2>Answer</h2>
+    <p>{{ answer|linebreaksbr }}</p>
+{% endif %}
+
+<p><em>Rehab-It gives general information only and is not medical advice.</em></p>
+
+{% endblock %}
