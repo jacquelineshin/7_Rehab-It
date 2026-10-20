@@ -23,6 +23,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 EXERCISE_API_KEY = os.getenv("EXERCISE_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/

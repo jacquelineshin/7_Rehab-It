@@ -32,6 +32,7 @@ from rehab.apiViews import (
     exerciseSummaryApi,
     sessionSummaryApi,
 )
+from rehab.aiViews import askRehab, exerciseCoach
 from rehab.chartViews import (
     vegaCharts,
     vegaChart1,
@@ -85,6 +86,8 @@ urlpatterns = [
     path("vega-lite/", vegaCharts, name="vegaCharts"),
     path("vega-lite/chart1.png", vegaChart1, name="vegaChart1"),
     path("vega-lite/chart2.png", vegaChart2, name="vegaChart2"),
+    path("ai/ask/", askRehab, name="askRehab"),
+    path("ai/coach/", exerciseCoach, name="exerciseCoach"),
 
 
 ]
