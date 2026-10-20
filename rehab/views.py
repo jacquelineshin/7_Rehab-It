@@ -460,3 +460,60 @@ def rehab_json(request):
     rehab_file = f"rehab_{rehab_json_time}.json"
     rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
     return rehab_response
+
+
+def pubmed_research(request):
+    query = request.GET.get("q", "").strip()
+    articles = []
+    error = None
+
+    if query:
+        try:
+            response = requests.get(
+                "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+                params={
+                    "db": "pubmed",
+                    "term": query,
+                    "retmode": "json",
+                    "retmax": 5,
+                },
+                timeout=10,
+            )
+            response.raise_for_status()
+
+            article_ids = response.json()["esearchresult"]["idlist"]
+
+            if article_ids:
+                details = requests.get(
+                    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+                    params={
+                        "db": "pubmed",
+                        "id": ",".join(article_ids),
+                        "retmode": "json",
+                    },
+                    timeout=10,
+                )
+                details.raise_for_status()
+                results = details.json()["result"]
+
+                for article_id in article_ids:
+                    article = results[article_id]
+                    articles.append({
+                        "title": article.get("title", ""),
+                        "journal": article.get("fulljournalname", ""),
+                        "date": article.get("pubdate", ""),
+                        "url": f"https://pubmed.ncbi.nlm.nih.gov/{article_id}/",
+                    })
+
+        except (requests.exceptions.RequestException, ValueError, KeyError):
+            error = "Unable to retrieve PubMed articles right now."
+
+    return render(
+        request,
+        "rehab/pubmed_research.html",
+        {
+            "query": query,
+            "articles": articles,
+            "error": error,
+        },
+    )
