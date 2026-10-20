@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from django.urls import path, include
-
+from django.views.generic import TemplateView
 from rehab.views import (
     exerciseManual,
     exerciseList,
@@ -83,4 +83,6 @@ urlpatterns = [
     path("vega-lite/", vegaCharts, name="vegaCharts"),
     path("vega-lite/chart1.png", vegaChart1, name="vegaChart1"),
     path("vega-lite/chart2.png", vegaChart2, name="vegaChart2"),
+
+
 ]

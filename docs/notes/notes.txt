@@ -126,5 +126,5 @@ An API would make more sense if usage was unpredictable, if the local model stru
 if maintaining the necessary hardware became too expensive.
 For Rehab-It, I would initially favor an API or hybrid approach. As the application grows, we could compare actual usage
 costs and model performance to determine whether moving more tasks to a local model would be worthwhile. I think the
- goal should be to find the most affordable option that still provides users with reliable, personalized exercise
- guidance.
+goal should be to find the most affordable option that still provides users with reliable, personalized exercise
+guidance.
