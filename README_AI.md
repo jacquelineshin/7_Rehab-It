@@ -5,7 +5,7 @@ We added two AI features (you have to be logged in to use them). The code is in 
 1. **Ask Rehab-It** (`/ai/ask/`) - answers exercise and recovery questions using a local Hugging Face model,
    `Qwen/Qwen2.5-1.5B-Instruct`. We picked it because it scored the best in our notebook.
 2. **Exercise Coach** (`/ai/coach/`) - gives tips on how to do an exercise from our database safely, using the
-   Groq API (`llama-3.1-8b-instant`).
+   Groq API (`qwen/qwen3.8-27b`).
 
 ## Data Input
 
