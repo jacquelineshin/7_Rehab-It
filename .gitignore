@@ -221,3 +221,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Model weights
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.gguf
