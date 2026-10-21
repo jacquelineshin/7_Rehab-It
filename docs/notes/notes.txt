@@ -75,9 +75,7 @@ P1-A4 Part 1 - Internal API and Vega-Lite Charts
 
 Text Intelligence
 
-1: ### 1. Size vs. Quality Trade-off
-
-For Rehab-It, we selected Qwen2.5-3B-Instruct, a relatively small language model with approximately 3 billion
+1: For Rehab-It, we selected Qwen2.5-3B-Instruct, a relatively small language model with approximately 3 billion
 parameters. I think this is a practical choice because we want to provide personalized exercise recommendations without
 requiring expensive computing resources. While larger models may perform better on complex reasoning tasks, that
 additional performance may not be necessary for interpreting exercise preferences or organizing training plans.
