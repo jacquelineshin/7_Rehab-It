@@ -75,6 +75,33 @@ P1-A4 Part 1 - Internal API and Vega-Lite Charts
 
 Text Intelligence
 
+1: ### 1. Size vs. Quality Trade-off
+
+For Rehab-It, we selected Qwen2.5-3B-Instruct, a relatively small language model with approximately 3 billion
+parameters. I think this is a practical choice because we want to provide personalized exercise recommendations without
+requiring expensive computing resources. While larger models may perform better on complex reasoning tasks, that
+additional performance may not be necessary for interpreting exercise preferences or organizing training plans.
+Our model comparison included SmolLM2-1.7B, Qwen3-1.7B, Qwen3-0.6B, TinyLlama-1.1B, and SmolLM3-3B. Smaller models
+generally require fewer resources but may struggle with detailed rehabilitation questions. Models closer to 3 billion
+parameters may offer a better balance between response quality and computational efficiency.
+For example, Qwen2.5-3B-Instruct requires approximately 6 GB for its weights at 16-bit precision, compared with roughly
+14 GB for a 7B model and 140 GB for a 70B model. Actual memory requirements are higher during inference.
+
+Model Size : Approximate Weight Memory (16-bit), Computing Requirements
+0.6B: 1.2 GB, Very low
+1.7B: 3.4 GB, Low
+3B (selected model): 6 GB, Relatively low
+7B: 14 GB, Moderate
+13B:  26 GB,  Higher
+70B: 140 GB, Very high
+
+If a GPU server costs approximately $1 per hour, running it continuously would cost around $730 per month. Larger models
+may require more expensive hardware or multiple GPUs, increasing operating costs.
+Overall, I think Qwen2.5-3B-Instruct offers a reasonable balance between performance and affordability. Its
+instruction tuned design makes it a promising choice for generating understandable rehabilitation guidance while keeping
+computational requirements manageable. However, actual response quality, accuracy, and safety would need to be confirmed
+through standardized benchmarking, especially since Rehab-It provides health-related information.
+
 2: If Rehab-It grew to 10,000 daily users, I would lean toward using an external API for more complex AI tasks rather
 than relying entirely on a locally hosted model. While local models eliminate per-token fees, supporting that many users
 would require substantial computing resources, especially when multiple people are requesting recommendations
