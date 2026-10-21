@@ -8,7 +8,7 @@ from django.shortcuts import render
 from .models import Exercise
 
 
-localModelName = "Qwen/Qwen2.5-1.5B-Instruct"
+localModelName = "Qwen/Qwen2.5-3B-Instruct"
 groqUrl = "https://api.groq.com/openai/v1/chat/completions"
 groqModelName = "qwen/qwen3.8-27b"
 maxInputLength = 500

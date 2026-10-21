@@ -3,7 +3,8 @@
 We added two AI features (you have to be logged in to use them). The code is in `rehab/aiViews.py`.
 
 1. **Ask Rehab-It** (`/ai/ask/`) - answers exercise and recovery questions using a local Hugging Face model,
-   `Qwen/Qwen2.5-1.5B-Instruct`. We picked it because it scored the best in our notebook.
+   `Qwen/Qwen2.5-3B-Instruct`. We picked it because it scored the best in our notebook
+   (`test/ai_prototype.ipynb`) and was the fastest of the top models.
 2. **Exercise Coach** (`/ai/coach/`) - gives tips on how to do an exercise from our database safely, using the
    Groq API (`qwen/qwen3.8-27b`).
 
@@ -35,5 +36,5 @@ We added two AI features (you have to be logged in to use them). The code is in 
 2. Get a free API key from https://console.groq.com and add `GROQ_API_KEY=your-key-here` to your `.env` file.
 3. `python manage.py runserver`
 
-The first question takes about a minute because the model (about 3 GB) has to download and load. This only
+The first question takes about a minute because the model (about 6 GB) has to download and load. This only
 runs locally since the model is too big for PythonAnywhere.
