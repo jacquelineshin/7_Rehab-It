@@ -17,6 +17,8 @@ header {
 header h1 {
     margin: 0;
     font-size: 32px;
+    font-family: Georgia, serif;
+    color: #24594b;
 }
 
 header p {
@@ -59,4 +61,81 @@ footer {
     padding: 20px;
     color: #666;
     font-size: 14px;
+}
+
+/* Navigation bar */
+nav {
+    background-color: #e8f0f8;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid #cbdbea;
+}
+
+/* Navigation links */
+nav a {
+    color: #23466b;
+    text-decoration: none;
+    padding: 9px 13px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+/* Hover effect */
+nav a:hover {
+    background-color: #d0e1f1;
+}
+
+/* Log out button */
+nav button {
+    background-color: #23466b;
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+nav button:hover {
+    background-color: #163451;
+}
+
+/* Main content */
+main {
+    padding: 24px;
+}
+
+/* All lists across the website */
+ul, ol {
+    padding-left: 25px;
+    max-width: 750px;
+}
+
+/* All list items */
+li {
+    background-color: #ffffff;
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    border: 1px solid #d5e9e2;
+    border-radius: 6px;
+}
+
+/* Hover effect for list items */
+li:hover {
+    background-color: #eaf4ef;
+}
+
+/* Links inside lists */
+li a {
+    color: #367764;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+li a:hover {
+    text-decoration: underline;
 }
