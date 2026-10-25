@@ -72,3 +72,84 @@ P1-A4 Part 1 - Internal API and Vega-Lite Charts
   vl-convert-python package to turn the same Vega-Lite spec into a PNG, so we added it to requirements.txt.
 - To use a spec in the Vega-Lite editor the data url has to be the full url (ex. http://127.0.0.1:8000/api/summary/).
   We added the Access-Control-Allow-Origin header to the two summary APIs so other sites like the editor can read them.
+
+Text Intelligence
+
+1: For Rehab-It, we selected Qwen2.5-3B-Instruct, a relatively small language model with approximately 3 billion
+parameters. I think this is a practical choice because we want to provide personalized exercise recommendations without
+requiring expensive computing resources. While larger models may perform better on complex reasoning tasks, that
+additional performance may not be necessary for interpreting exercise preferences or organizing training plans.
+Our model comparison included SmolLM2-1.7B, Qwen3-1.7B, Qwen3-0.6B, TinyLlama-1.1B, and SmolLM3-3B. Smaller models
+generally require fewer resources but may struggle with detailed rehabilitation questions. Models closer to 3 billion
+parameters may offer a better balance between response quality and computational efficiency.
+For example, Qwen2.5-3B-Instruct requires approximately 6 GB for its weights at 16-bit precision, compared with roughly
+14 GB for a 7B model and 140 GB for a 70B model. Actual memory requirements are higher during inference.
+
+Model Size : Approximate Weight Memory (16-bit), Computing Requirements
+0.6B: 1.2 GB, Very low
+1.7B: 3.4 GB, Low
+3B (selected model): 6 GB, Relatively low
+7B: 14 GB, Moderate
+13B:  26 GB,  Higher
+70B: 140 GB, Very high
+
+If a GPU server costs approximately $1 per hour, running it continuously would cost around $730 per month. Larger models
+may require more expensive hardware or multiple GPUs, increasing operating costs.
+Overall, I think Qwen2.5-3B-Instruct offers a reasonable balance between performance and affordability. Its
+instruction tuned design makes it a promising choice for generating understandable rehabilitation guidance while keeping
+computational requirements manageable. However, actual response quality, accuracy, and safety would need to be confirmed
+through standardized benchmarking, especially since Rehab-It provides health-related information.
+
+2: If Rehab-It grew to 10,000 daily users, I would lean toward using an external API for more complex AI tasks rather
+than relying entirely on a locally hosted model. While local models eliminate per-token fees, supporting that many users
+would require substantial computing resources, especially when multiple people are requesting recommendations
+simultaneously. Django could still manage user accounts, exercise information, and training plans, while the API would
+handle AI-generated responses. To estimate the costs, I assumed each user makes five AI requests per day, averaging 500
+input tokens and 300 output tokens per request. With these assumptions we calculated monthly requests = 1,500,000;
+monthly input tokens= 750 million; monthly output tokens = 450 million.
+Using GPT-4.1 mini as an example, at $0.40 per million input tokens and $1.60 per million output tokens, the estimated
+API cost would be $1,020 per month.
+In comparison, an AWS server with an NVIDIA A10G GPU costs approximately $734 per month if running continuously.
+However, one GPU may not be enough to handle all requests efficiently. Two servers would cost approximately $1,468
+monthly, excluding additional infrastructure and maintenance. I think an API would initially make more sense for
+Rehab-It because it could handle changes in demand without requiring us to manage expensive GPU infrastructure. However,
+if usage became consistently high, local hosting could eventually become more cost-effective.
+
+3: I think a hybrid approach would be a good fit for Rehab-It because not every feature requires a powerful AI model. A
+smaller Hugging Face model could handle simpler requests, while an external API could be used when more detailed
+reasoning or personalization is needed. For example, if someone wanted beginner-friendly leg exercises, a local model
+could interpret the request and identify appropriate exercises from our database. However, if someone wanted a
+personalized training plan based on their recovery stage, physical limitations, and available equipment, an API could
+help organize a more detailed recommendation.
+Examples of tasks and what approach they should use: Filtering exercises by difficulty - django database (does not
+require AI); understanding basic exercise preferences - local model (relatively simple task); generating personalized
+training plans - external API (requires more complex reasoning); explaining exercise modifications - verified exercise
+content with AI assistance (accuracy is important); tracking completed workouts - Django database (No AI needed)
+This would allow us to reserve API calls for situations where they actually improve the user experience. We could also
+save frequently requested exercise explanations to avoid repeatedly generating the same responses. Since Rehab-It
+focuses on rehabilitation, I also think it is important that both models rely on reliable exercise information rather
+than generating recommendations without appropriate safeguards. Overall, combining local processing with an API could
+help us control costs without sacrificing the quality of more personalized features.
+
+4: Suppose Rehab-It ran on a server with 16 CPU cores, GPU acceleration, 64 GB of RAM, and 1 TB of storage. Whether this
+server could efficiently support a particular Hugging Face model would depend on its size and the GPU's available
+memory. For example, a 7-billion-parameter model requires approximately 14 GB just to store its weights at 16-bit
+precision. Quantization could reduce this requirement, making smaller models more practical to run locally. One
+advantage of local hosting is that we would not pay for every request. However, we would still need to cover server
+costs, even during periods of low activity.
+Assuming a server costs $2 per hour:
+- Dedicated server costs roughly $1,440 per month
+- Additional storage, monitoring, and networking is a variable expense
+- Maintenance and updates would cost us additional labor
+- API usage	would depend on tokens processed
+At the example GPT-4.1 mini pricing, an average request containing 500 input tokens and 300 output tokens would cost
+approximately $0.00068. This means API spending would reach $1,440 at roughly 2.12 million requests per month, although
+that does not account for whether the local server could handle the same workload. I would choose a pre-trained model if
+Rehab-It had consistent, high traffic and a smaller model could provide recommendations that were accurate and useful.
+Local hosting would also give us more control over how the model operates, although it would require ongoing maintenance.
+An API would make more sense if usage was unpredictable, if the local model struggled with more complicated requests, or
+if maintaining the necessary hardware became too expensive.
+For Rehab-It, I would initially favor an API or hybrid approach. As the application grows, we could compare actual usage
+costs and model performance to determine whether moving more tasks to a local model would be worthwhile. I think the
+goal should be to find the most affordable option that still provides users with reliable, personalized exercise
+guidance.

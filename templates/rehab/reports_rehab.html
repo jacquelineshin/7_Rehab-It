@@ -1,35 +1,60 @@
+
 {% extends "rehab/base.html" %}
+
 {% block title %}Reports Rehab{% endblock %}
-{% block content %}
-    <h1>Reports Rehab</h1>
-    <div>
-        <div>Workout Exercises</div>
-        <table>
-            <thead>Workout Exercises</thead>
-            <tbody>
-                {% for table in workoutsession_exercises %}
-                    <tr><td>{{ table.name }}</td></tr>
-                {% empty %}
-                    <tr><td>Workout Exercises data does not exist.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div>
-        <div>Training Plan Workout Sessions</div>
-        <table>
-            <thead>Training Plan Workout Sessions</thead>
-            <tbody>
-                {% for table in trainingplan_workoutsessions %}
-                    <tr><td>{{ table.name }}</td></tr>
-                {% empty %}
-                    <tr><td>Training Plan Workout Sessions data does not exist.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div>
-        <a href="">CSV</a>
-        <a href="">JSON</a>
-    </div>
+
+{% block rehab_content %}
+<h1>Rehab-It Reports</h1>
+
+<h2>Summary</h2>
+<table>
+    <tbody>
+        <tr>
+            <th>Total Exercises</th>
+            <td>{{ total_exercises }}</td>
+        </tr>
+        <tr>
+            <th>Total Workout Sessions</th>
+            <td>{{ total_workout_sessions }}</td>
+        </tr>
+        <tr>
+            <th>Total Training Plans</th>
+            <td>{{ total_training_plans }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Workout Exercises</h2>
+<table>
+    <tbody>
+        {% for table in workoutsession_exercises %}
+        <tr>
+            <td>{{ table.name }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td>No workout sessions found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Training Plan Workout Sessions</h2>
+<table>
+    <tbody>
+        {% for table in trainingplan_workoutsessions %}
+        <tr>
+            <td>{{ table.name }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td>No training plans found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Export Data</h2>
+<a href="{% url 'export_rehab_json' %}">Download JSON</a>
+
 {% endblock %}

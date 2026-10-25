@@ -1,0 +1,44 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}Exercise Coach{% endblock %}
+
+{% block rehab_content %}
+
+<h1>Exercise Coach</h1>
+
+<p>
+    Pick an exercise from our exercise list to get tips on how to do it safely.
+    These tips come from an outside AI service (Groq, {{ modelName }}).
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <select name="exercise" required>
+        <option value="">Pick an exercise</option>
+        {% for exercise in exercises %}
+            <option value="{{ exercise.pk }}" {% if exercise == selectedExercise %}selected{% endif %}>
+                {{ exercise.name }}
+            </option>
+        {% empty %}
+            <option value="">No exercises yet</option>
+        {% endfor %}
+    </select>
+    <br>
+    <input type="text" name="note" value="{{ note }}" maxlength="500" size="60"
+           placeholder="Optional: anything we should know? (e.g. my knee is sore)">
+    <br>
+    <button type="submit">Get Tips</button>
+</form>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+{% if answer %}
+    <h2>Tips for {{ selectedExercise.name }}</h2>
+    <p>{{ answer|linebreaksbr }}</p>
+{% endif %}
+
+<p><em>Rehab-It gives general information only and is not medical advice.</em></p>
+
+{% endblock %}

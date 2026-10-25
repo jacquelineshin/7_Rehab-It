@@ -410,22 +410,28 @@ class ReportsWorkoutView(TemplateView):
 
 
 class ReportsRehabView(TemplateView):
-    template_name = "rehab/reports_workout.html"
+    template_name = "rehab/reports_rehab.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context["workoutsession_exercises"] = (
-            WorkoutSession.objects
-            .values("name")
+            WorkoutSession.objects.values("name")
         )
+
         context["trainingplan_workoutsessions"] = (
-            TrainingPlan.objects
-            .values("name")
+            TrainingPlan.objects.values("name")
         )
+
+        context["total_exercises"] = Exercise.objects.count()
+        context["total_workout_sessions"] = WorkoutSession.objects.count()
+        context["total_training_plans"] = TrainingPlan.objects.count()
+
         return context
 
 def rehab_csv(request):
-    time = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    rehab_file = f"rehab_{time}.csv"
+    rehab_csv_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    rehab_file = f"rehab_{rehab_csv_time}.csv"
     rehab_response = HttpResponse(content_type="text/csv")
     rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
     rehab_response
@@ -438,3 +444,76 @@ def rehab_csv(request):
     for table in rehab_rows:
         rehab_writer.writerow(table)
     return rehab_response
+
+def rehab_json(request):
+    rehab_json_data = list(
+        Exercise.objects
+        .values("name")
+    )
+    rehab_json_information = {
+        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "total_exercises": len(rehab_json_data),
+        "exercises": rehab_json_data,
+    }
+    rehab_response = JsonResponse(rehab_json_information)
+    rehab_json_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    rehab_file = f"rehab_{rehab_json_time}.json"
+    rehab_response["Content-Disposition"] = f"attachment; filename={rehab_file}"
+    return rehab_response
+
+
+def pubmed_research(request):
+    query = request.GET.get("q", "").strip()
+    articles = []
+    error = None
+
+    if query:
+        try:
+            response = requests.get(
+                "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+                params={
+                    "db": "pubmed",
+                    "term": query,
+                    "retmode": "json",
+                    "retmax": 5,
+                },
+                timeout=10,
+            )
+            response.raise_for_status()
+
+            article_ids = response.json()["esearchresult"]["idlist"]
+
+            if article_ids:
+                details = requests.get(
+                    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+                    params={
+                        "db": "pubmed",
+                        "id": ",".join(article_ids),
+                        "retmode": "json",
+                    },
+                    timeout=10,
+                )
+                details.raise_for_status()
+                results = details.json()["result"]
+
+                for article_id in article_ids:
+                    article = results[article_id]
+                    articles.append({
+                        "title": article.get("title", ""),
+                        "journal": article.get("fulljournalname", ""),
+                        "date": article.get("pubdate", ""),
+                        "url": f"https://pubmed.ncbi.nlm.nih.gov/{article_id}/",
+                    })
+
+        except (requests.exceptions.RequestException, ValueError, KeyError):
+            error = "Unable to retrieve PubMed articles right now."
+
+    return render(
+        request,
+        "rehab/pubmed_research.html",
+        {
+            "query": query,
+            "articles": articles,
+            "error": error,
+        },
+    )

@@ -1,0 +1,49 @@
+
+{% extends "rehab/base.html" %}
+
+{% block title %}Rehabilitation Research{% endblock %}
+
+{% block rehab_content %}
+
+<h1>Rehabilitation Research</h1>
+
+<p>
+    Search PubMed for scientific research related to
+    rehabilitation, recovery, and exercise.
+</p>
+
+<form method="get">
+    <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="e.g. stroke rehabilitation"
+        required
+    >
+    <button type="submit">Search Research</button>
+</form>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+{% if articles %}
+    <h2>Research Articles</h2>
+
+    {% for article in articles %}
+        <div>
+            <h3>
+                <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
+                    {{ article.title }}
+                </a>
+            </h3>
+
+            <p>{{ article.journal }} — {{ article.date }}</p>
+        </div>
+    {% endfor %}
+
+{% elif query and not error %}
+    <p>No articles found for this search.</p>
+{% endif %}
+
+{% endblock %}

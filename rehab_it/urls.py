@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from django.urls import path, include
-
+from django.views.generic import TemplateView
 from rehab.views import (
     exerciseManual,
     exerciseList,
@@ -21,7 +21,8 @@ from rehab.views import (
     exercise_chart_page,
     exercise_difficulty_chart,
     ReportsRehabView,
-    rehab_csv,
+    rehab_csv, rehab_json,
+    pubmed_research,
 )
 from rehab.apiViews import (
     exerciseApi,
@@ -31,6 +32,7 @@ from rehab.apiViews import (
     exerciseSummaryApi,
     sessionSummaryApi,
 )
+from rehab.aiViews import askRehab, exerciseCoach
 from rehab.chartViews import (
     vegaCharts,
     vegaChart1,
@@ -67,6 +69,8 @@ urlpatterns = [
     path("data-summary/", dataSummary, name="data_summary"),
     path("reports_rehab", ReportsRehabView.as_view(), name="reports_rehab"),
     path("export/rehab_csv", rehab_csv, name="export_rehab_csv"),
+    path("export/rehab_json", rehab_json, name="export_rehab_json"),
+    path("research/", pubmed_research, name="pubmed_research"),
 
     # APIs
     path("api/exercises/", exerciseApi, name="exerciseApi"),
@@ -82,4 +86,8 @@ urlpatterns = [
     path("vega-lite/", vegaCharts, name="vegaCharts"),
     path("vega-lite/chart1.png", vegaChart1, name="vegaChart1"),
     path("vega-lite/chart2.png", vegaChart2, name="vegaChart2"),
+    path("ai/ask/", askRehab, name="askRehab"),
+    path("ai/coach/", exerciseCoach, name="exerciseCoach"),
+
+
 ]
