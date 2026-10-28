@@ -8,9 +8,9 @@ from django.shortcuts import render
 from .models import Exercise
 
 
-localModelName = "Qwen/Qwen2.5-1.5B-Instruct"
+localModelName = "Qwen/Qwen2.5-3B-Instruct"
 groqUrl = "https://api.groq.com/openai/v1/chat/completions"
-groqModelName = "llama-3.1-8b-instant"
+groqModelName = "qwen/qwen3.8-27b"
 maxInputLength = 500
 
 localTokenizer = None
@@ -52,6 +52,12 @@ systemPrompt = (
     "Give general information, do not diagnose injuries, and prioritize safety. "
     "Use clear, concise language. Always answer with these three sections: "
     "Recommendation, What to do, When to seek help."
+)
+
+coachPrompt = (
+    "You are an exercise coach for Rehab-It!, an exercise recovery application. "
+    "Give general information, do not diagnose injuries, and prioritize safety. "
+    "Use clear, concise language."
 )
 
 examples = [
@@ -191,7 +197,7 @@ def askGroq(prompt):
     body = {
         "model": groqModelName,
         "messages": [
-            {"role": "system", "content": systemPrompt},
+            {"role": "system", "content": coachPrompt},
             {"role": "user", "content": prompt},
         ],
         "max_tokens": 300,
