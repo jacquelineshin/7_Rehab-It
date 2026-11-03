@@ -1,0 +1,9 @@
+Embedding Model,Dataset,Dataset_Size,Avg_Precision_at_3,Hit_Rate,Avg_Noise_per_Query,Avg_Top1_Similarity,Median_Latency_s
+sentence-transformers/all-MiniLM-L6-v2,small_original,7,0.0,0.0,3.0,0.458,0.037
+sentence-transformers/all-MiniLM-L6-v2,small_random20,20,0.466,0.8,1.6,0.567,0.026
+sentence-transformers/all-MiniLM-L6-v2,medium,54,0.734,1.0,0.8,0.627,0.044
+sentence-transformers/all-MiniLM-L6-v2,large,117,0.802,1.0,0.6,0.628,0.018
+BAAI/bge-base-en-v1.5,small_original,7,0.0,0.0,3.0,0.613,0.055
+BAAI/bge-base-en-v1.5,small_random20,20,0.6,0.8,1.2,0.684,0.09
+BAAI/bge-base-en-v1.5,medium,54,0.802,1.0,0.6,0.702,0.124
+BAAI/bge-base-en-v1.5,large,117,0.802,1.0,0.6,0.706,0.043
