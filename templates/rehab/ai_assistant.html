@@ -1,0 +1,43 @@
+{% extends "rehab/base.html" %}
+
+{% block title %}
+    AI Exercise Assistant
+{% endblock %}
+
+{% block rehab_content %}
+
+<h1>AI Exercise Assistant</h1>
+
+<p>
+    Ask a question about exercises, mobility,
+    or rehabilitation goals.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <textarea
+        name="question"
+        rows="4"
+        required
+        placeholder="What exercises can help improve my balance?"
+    >{{ question }}</textarea>
+
+    <button type="submit">
+        Ask Rehab-It
+    </button>
+</form>
+
+{% if answer %}
+    <div class="card">
+        <h2>Rehab-It's Response</h2>
+        <p style="white-space: pre-wrap;">{{ answer }}</p>
+    </div>
+{% endif %}
+
+<p>
+    This assistant provides general exercise information,
+    not personalized medical advice.
+</p>
+
+{% endblock %}

@@ -19,7 +19,7 @@ from django.views.generic import ListView, DetailView, TemplateView
 
 from .decorators import api_login_required
 from .models import Exercise, WorkoutSession, TrainingPlan
-
+from django.shortcuts import render
 # ---------- PUBLIC pages ----------
 
 def home(request):
@@ -516,4 +516,26 @@ def pubmed_research(request):
             "articles": articles,
             "error": error,
         },
+    )
+from django.shortcuts import render
+from .ai_service import generate_exercise_response
+
+
+def ai_assistant(request):
+    answer = None
+    question = ""
+
+    if request.method == "POST":
+        question = request.POST.get("question", "").strip()
+
+        if question:
+            answer = generate_exercise_response(question)
+
+    return render(
+        request,
+        "rehab/ai_assistant.html",
+        {
+            "question": question,
+            "answer": answer
+        }
     )

@@ -1,0 +1,16 @@
+Model,Model Category,Average_Score,Average_Latency,Average_Tokens_Per_Second,Responses_Tested
+Qwen/Qwen2.5-3B-Instruct,Medium,10.0,1499.0,0.07,5
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Small,9.8,366.87,2.37,5
+Qwen/Qwen2.5-1.5B-Instruct,Small,9.75,794.61,0.14,5
+Qwen/Qwen2-1.5B-Instruct,Small,9.55,831.82,0.13,5
+Qwen/Qwen2.5-0.5B-Instruct,Ultra-Light,8.75,56.05,4.53,25
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Small,8.7,676.03,0.13,5
+Qwen/Qwen2-0.5B-Instruct,Ultra-Light,8.55,36.07,9.29,5
+tiiuae/Falcon3-3B-Instruct,Medium,8.5,1112.77,0.08,5
+HuggingFaceTB/SmolLM2-360M-Instruct,Ultra-Light,7.76,35.37,5.61,25
+Qwen/Qwen3-0.6B,Ultra-Light,7.65,36.58,6.27,5
+Qwen/Qwen3-1.7B,Small,7.0,1171.78,0.13,5
+HuggingFaceTB/SmolLM2-1.7B,Small,6.75,1432.47,0.1,1
+HuggingFaceTB/SmolLM2-135M-Instruct,Ultra-Light,5.68,8.6,13.27,25
+Qwen/Qwen2.5-1.5B,Small,3.95,773.78,0.14,5
+Qwen/Qwen2.5-0.5B,Ultra-Light,1.75,57.11,2.61,1

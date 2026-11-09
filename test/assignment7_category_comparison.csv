@@ -1,0 +1,4 @@
+Model Category,Average_Score,Average_Latency,Average_Tokens_Per_Second,Responses_Tested
+Medium,9.25,1305.88,0.08,10
+Small,8.08,790.55,0.49,31
+Ultra-Light,7.71,22.15,13.19,26

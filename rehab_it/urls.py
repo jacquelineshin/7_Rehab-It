@@ -1,6 +1,7 @@
 
 from django.contrib import admin
 from django.urls import path, include
+
 from django.views.generic import TemplateView
 from rehab.views import (
     exerciseManual,
@@ -23,6 +24,7 @@ from rehab.views import (
     ReportsRehabView,
     rehab_csv, rehab_json,
     pubmed_research,
+    ai_assistant
 )
 from rehab.apiViews import (
     exerciseApi,
@@ -88,6 +90,5 @@ urlpatterns = [
     path("vega-lite/chart2.png", vegaChart2, name="vegaChart2"),
     path("ai/ask/", askRehab, name="askRehab"),
     path("ai/coach/", exerciseCoach, name="exerciseCoach"),
-
-
+    path("ai-assistant/", ai_assistant, name="ai_assistant"),
 ]
