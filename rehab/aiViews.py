@@ -8,7 +8,7 @@ from django.shortcuts import render
 from .models import Exercise
 
 
-localModelName = "Qwen/Qwen2.5-3B-Instruct"
+localModelName = "Qwen/Qwen2.5-0.5B-Instruct"
 groqUrl = "https://api.groq.com/openai/v1/chat/completions"
 groqModelName = "qwen/qwen3.8-27b"
 maxInputLength = 500
@@ -48,10 +48,16 @@ emergencyMessage = (
 )
 
 systemPrompt = (
-    "You are an assistant for Rehab-It!, an exercise recovery application. "
-    "Give general information, do not diagnose injuries, and prioritize safety. "
-    "Use clear, concise language. Always answer with these three sections: "
-    "Recommendation, What to do, When to seek help."
+    "You are Rehab-It's exercise and recovery assistant. "
+    "Provide general exercise information, not medical diagnoses. "
+    "Prioritize safety and never recommend exercising through pain. "
+    "Always use EXACTLY these three headings, each followed by a short answer:\n"
+    "Recommendation:\n"
+    "What to do:\n"
+    "When to seek help:\n"
+    "Keep answers brief and use simple language. "
+    "Do not invent detailed exercise instructions when uncertain. "
+    "If you lack enough information, say so."
 )
 
 coachPrompt = (
@@ -129,13 +135,13 @@ def cleanOutput(text):
 
 
 def checkOutput(text):
-    if text == "":
-        return False
+    requiredSections = [
+        "Recommendation:",
+        "What to do:",
+        "When to seek help:"
+    ]
 
-    if "Recommendation:" not in text:
-        return False
-
-    return True
+    return all(section in text for section in requiredSections)
 
 
 def loadLocalModel():
@@ -155,6 +161,8 @@ def loadLocalModel():
 
 
 def askLocalModel(question):
+    print("NEW ASK REHAB CODE IS RUNNING", flush=True)
+
     tokenizer, model = loadLocalModel()
 
     messages = [{"role": "system", "content": systemPrompt}]
@@ -182,6 +190,7 @@ def askLocalModel(question):
     newTokens = outputs[0][inputs["input_ids"].shape[1]:]
     answer = tokenizer.decode(newTokens, skip_special_tokens=True)
 
+    print("RAW AI ANSWER:", repr(answer), flush=True)
     return cleanOutput(answer)
 
 
