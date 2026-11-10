@@ -38,3 +38,25 @@ How dataset size affected retrieval quality: Quality rose as the dataset grew fr
 How dataset size affected noise: Noise was highest when the answers weren’t in the data. The system always returns three results, so with too little data it fills the list with plausible but wrong ones. For “How do I strengthen my shoulder after surgery?” the random 20 returned Prone Y-T-W Raise, Neck Side Stretch, and either Crunches or Plank. These had similarity scores of 0.53 to 0.67, close to correct results (0.60 to 0.76), so a score cutoff could not reliably remove them. Irrelevant results per query fell from 3.0 (7 exercises) to 1.2 to 1.6 (20) and 0.6 to 0.8 (54 and 117). In the largest dataset, noise appeared only for the equipment-free query. With bge-base, Chest Fly (which needs dumbbells) entered the top 3 and displaced Dead Bug. The other four queries stayed clean. So extra unrelated data added only a little noise, because the distractors came from different topics than the queries.
 Latency: Retrieval stayed between 0.02 and 0.12 seconds with no clear link to dataset size. With only 117 vectors, searching is trivial, and the differences are timing noise.
 Limitations: Relevance was scored automatically against an answer key (names for four queries, the phrase “no equipment” for the fifth). This undercounts some good results. For the leg strength query the original set returned Lunges and Heel Raises, which are reasonable answers my key didn’t list, so the 0.00 for the smallest set is partly an artifact. The extra exercises were written as distractors, which is harsher than real data would likely be. I used five queries, one chunking strategy (record), and two embedding models (bge-large was skipped because of memory).
+
+### Assignment 8: Evaluation and Results
+
+For Assignment 8, I evaluated how different embedding models, chunking strategies, and dataset sizes affected the
+performance of an exercise retrieval and question-answering system. I tested three embedding models—MiniLM-L6-v2,
+BGE-base-en-v1.5, and BGE-large-en-v1.5—using record-based, sentence-based, and fixed-size chunking. Each of the nine
+configurations was evaluated using five realistic exercise-related questions, resulting in 45 experimental runs.
+
+For each experiment, I recorded the retrieved context, generated response, and latency. I also evaluated retrieval
+relevance and answer quality to understand how different configurations influenced the system's ability to provide useful
+exercise information.
+
+My results showed that larger embedding models did not necessarily produce better results. BGE-base achieved an average
+retrieval quality score of 7.60/10 and an answer quality score of 5.73/10, outperforming the larger BGE-large model in
+these evaluations. This demonstrated that increasing embedding size does not automatically improve retrieval or response
+quality.
+
+I also found that record-based chunking performed best overall, achieving an average retrieval quality score of 8.27/10, compared with 7.53/10 for fixed-size chunking and 6.27/10 for sentence-based chunking. Keeping each exercise's information together helped preserve important context, while sentence-based and fixed-size chunking sometimes separated exercise names from their descriptions or instructions. This occasionally resulted in less relevant retrieved information or inaccurate generated responses.
+
+Finally, I conducted a data scaling experiment using datasets containing 7, 20, 54, and 117 exercises. Retrieval precision generally improved as the dataset increased, with both MiniLM and BGE-base reaching approximately 80% Precision@3 on the largest dataset. However, the results also suggested that adding more exercises does not always lead to substantial improvements, particularly when the existing dataset already contains relevant information.
+
+Overall, these experiments helped me better understand the relationship between embedding model size, chunking strategy, dataset coverage, retrieval relevance, and response latency. They also highlighted the importance of evaluating both retrieved information and generated answers rather than assuming that a larger model or dataset will automatically produce better results.
