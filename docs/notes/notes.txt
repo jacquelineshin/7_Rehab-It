@@ -166,17 +166,28 @@ I selected this feature because Rehab-It is designed to support users throughout
 
 For example, users can ask about beginner-friendly exercises, muscle soreness, stretching, or general recovery practices. The AI model processes the user's question and generates a conversational response. The assistant is intended to provide general educational guidance rather than medical diagnoses or individualized treatment plans.
 
-Step 1.2: Reuse Prior Work
+### Step 1.2: Reuse Prior Work
 
-For the AI integration, I built on my previous experience experimenting with generative language models and evaluating their performance. These earlier assignments helped me understand the importance of selecting a model that balances response quality, computational requirements, and speed.
+For Ask Rehab-It, I built on my previous assignments exploring generative AI models, performance tradeoffs, and semantic search. These experiments helped me select an AI model that could provide useful exercise-related information while maintaining reasonable response times.
 
-For Ask Rehab-It, I experimented with different sizes of the Qwen2.5 instruction-tuned model. I initially integrated Qwen2.5-3B-Instruct, but encountered significant performance limitations when running the model locally. The larger model required substantial memory, and generating responses was much slower than expected. This made it less practical for an interactive chatbot where users expect relatively quick answers.
+**A6: Generative Model Testing**
 
-To address these limitations, I switched to Qwen2.5-0.5B-Instruct. Although the smaller model has less capacity than the 3B version, it was able to run more efficiently on my computer and generate responses in approximately five seconds during testing. This improvement made the application much more responsive.
+In my earlier model testing, I compared six publicly available language models, including Qwen2.5, SmolLM2, TinyLlama, and Qwen2. I evaluated their responses using three exercise-related tasks: recovery guidance, instruction following, and safety awareness. I ultimately reused Qwen2.5-0.5B-Instruct for Ask Rehab-It because it demonstrated a practical balance between response quality and computational efficiency.
 
-I also experimented with the model's instructions and response formatting to improve how answers were presented. Initially, the assistant generated responses using a rigid three-section format. I adjusted the prompting approach to encourage more natural and conversational answers that better fit the user's question.
+**A7: Performance and Latency Tradeoffs**
 
-These experiments reinforced the importance of considering practical performance alongside model capabilities. Ultimately, I prioritized a smaller, locally runnable model that could support a functional user experience without requiring a paid API.
+My experimental results showed that Qwen2.5-0.5B-Instruct had an average response time of 4.33 seconds, compared with 13.06 seconds for Qwen2.5-1.5B-Instruct and 11.53 seconds for Qwen2-1.5B-Instruct. Although smaller models such as SmolLM2-135M generated responses faster, I preferred Qwen2.5-0.5B because its responses were generally more detailed and structured in my exercise-related tests.
+
+During integration, I also experimented with Qwen2.5-3B-Instruct, but encountered memory limitations and significantly slower generation. Returning to the 0.5B model improved the application's responsiveness and allowed it to run locally.
+
+**A8: Retrieval and Semantic Search**
+
+In Assignment 8, I explored semantic search using exercise datasets and compared MiniLM and BGE embedding models. I also experimented with different chunking strategies, including record-based, sentence-based, and fixed-size chunking, to investigate how retrieval configuration affected relevance and response time.
+
+These experiments helped me understand how retrieval could support more relevant exercise recommendations. For the current Ask Rehab-It implementation, I chose to prioritize direct text generation rather than add a retrieval pipeline. However, the A8 experiments provide a foundation for potentially connecting the assistant to Rehab-It's exercise database in the future.
+
+Overall, my previous assignments directly influenced the final design of Ask Rehab-It. I selected a model I had already tested, used measured latency and qualitative response comparisons to guide my decision, and considered how semantic search could expand the application in the future.
+
 ## Step 1.3: Local/Public Model Integration
 
 To integrate the AI model into Rehab-It, I connected the locally running Qwen model to the Django backend. The primary AI feature does not depend on a paid external API. Instead, the application loads the model using Hugging Face's `transformers` library and processes questions locally.
