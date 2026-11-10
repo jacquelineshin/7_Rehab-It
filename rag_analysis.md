@@ -1,3 +1,78 @@
+## 2.3 Embedding Model Comparison
+
+To evaluate the impact of embedding model size on retrieval and answer quality, I compared three models: MiniLM (384 dimensions), BGE-base (768 dimensions), and BGE-large (1024 dimensions). Each model was tested using the same five queries across three chunking strategies, resulting in 15 experiments per model.
+
+| Embedding Model | Average Retrieved Context Quality (1–10) | Average Answer Quality (1–10) |
+|---|---:|---:|
+| MiniLM (384d) | 7.07 | 5.40 |
+| BGE-base (768d) | 7.00 | 4.33 |
+| BGE-large (1024d) | 7.33 | 6.53 |
+
+BGE-large performed the best overall, with an average retrieval quality score of 7.33 and an answer quality score of 6.53. However, the differences in retrieval quality between the three models were relatively small compared to the differences in answer quality. For example, MiniLM and BGE-base had nearly identical retrieval scores, but MiniLM produced higher-quality answers on average.
+
+These results suggest that larger embeddings do not automatically guarantee better retrieval or generation. Although BGE-large performed best in this experiment, BGE-base did not consistently outperform the smaller MiniLM model. Additionally, the quality of the final answer depended on how well the generative model interpreted the retrieved information, rather than embedding size alone.
+
+This is especially important for Rehab-It because retrieving relevant exercise information does not necessarily mean the model will provide accurate or appropriate instructions. Overall, I found that embedding model size can influence performance, but the relationship is not straightforward, and larger models are not always better.
+
+## 2.4 Chunking Strategy Comparison
+
+I also compared three chunking strategies: fixed-length, overlapping paragraph, and hybrid chunking. Each strategy was tested with all three embedding models and five queries, resulting in 15 experiments per strategy.
+
+| Chunking Strategy | Average Retrieved Context Quality (1–10) | Average Answer Quality (1–10) |
+|---|---:|---:|
+| Fixed Length | 5.80 | 4.07 |
+| Overlapping Paragraph | 7.60 | 5.93 |
+| Hybrid | 8.00 | 6.27 |
+
+Hybrid chunking performed the best overall, with the highest average scores for both retrieved context quality and answer quality. This strategy was effective because it preserved exercise names alongside their descriptions and instructions, allowing the retrieval system to return more complete and meaningful information. As a result, the generative model generally had enough context to identify specific exercises and explain how they should be performed.
+
+Overlapping paragraph chunking also performed well, with an average retrieval score of 7.60 and an answer quality score of 5.93. By combining neighboring paragraphs, this strategy preserved more surrounding information than fixed-length chunking. However, retrieving longer sections did not always improve the generated answer, since the model sometimes overlooked relevant exercises or failed to use all the available context.
+
+Fixed-length chunking performed the worst, with an average retrieval score of 5.80 and an answer quality score of 4.07. One limitation was that dividing information into smaller chunks could separate exercise names from important instructions or supporting details. This made it more difficult for the generative model to produce complete and accurate recommendations.
+
+One particularly concerning example occurred when the system recommended a Jump Squat in response to a query requesting low-impact leg-strengthening exercises. Because Jump Squats are high-impact, this response did not follow the user's request and demonstrated how an inappropriate generated answer could create safety concerns in a rehabilitation application.
+
+Overall, these results suggest that preserving meaningful context is more important than simply dividing text into equally sized pieces. Hybrid chunking was the most effective strategy for this dataset because the information was organized around individual exercises. However, the best chunking approach may depend on the structure of the knowledge base and the type of questions being asked.
+
+## 2.5 Dataset Scaling Analysis
+
+To evaluate how dataset size affects retrieval performance, I compared four knowledge bases containing 7, 20, 54, and 117 exercise records. I tested two embedding models, MiniLM (384 dimensions) and BGE-base (768 dimensions), using Precision@3, hit rate, irrelevant retrieved results, and retrieval latency.
+
+### Scaling Results
+
+| Dataset Size | MiniLM Precision@3 | BGE-base Precision@3 | MiniLM Hit Rate | BGE-base Hit Rate |
+|---|---:|---:|---:|---:|
+| 7 records | 0.0% | 0.0% | 0% | 0% |
+| 20 records | 46.6% | 60.0% | 80% | 80% |
+| 54 records | 73.4% | 80.2% | 100% | 100% |
+| 117 records | 80.2% | 80.2% | 100% | 100% |
+
+Interestingly, retrieval performance improved as the dataset increased in size. Both embedding models had a Precision@3 of 0% with only seven records, indicating that none of the retrieved results met the experiment's relevance criteria. However, when the dataset increased to 20 records, precision improved to 46.6% for MiniLM and 60.0% for BGE-base. At 117 records, both models reached 80.2% precision and a 100% hit rate.
+
+Initially, I expected larger datasets to introduce more irrelevant information and make retrieval more difficult. However, these results suggest that the smaller datasets may not have contained enough relevant exercises to answer the queries effectively. As additional exercises were introduced, the system had more opportunities to retrieve information that matched the user's needs.
+
+The average number of irrelevant results per query also decreased as the dataset grew. For MiniLM, this decreased from 3.0 with seven records to 0.6 with 117 records. BGE-base showed the same overall trend. This suggests that increasing the amount of relevant content improved retrieval more than the additional documents increased confusion.
+
+### Retrieval Latency
+
+| Dataset Size | MiniLM Median Latency | BGE-base Median Latency |
+|---|---:|---:|
+| 7 records | 0.037 s | 0.055 s |
+| 20 records | 0.026 s | 0.090 s |
+| 54 records | 0.044 s | 0.124 s |
+| 117 records | 0.018 s | 0.043 s |
+
+Retrieval latency did not increase consistently with dataset size. In fact, both models had their lowest recorded median latency at 117 records. This may reflect measurement variability, caching, or differences in runtime conditions rather than a true improvement in retrieval efficiency.
+
+Because the datasets were relatively small, these results do not establish how the system would perform with thousands of documents. A much larger dataset would likely require additional consideration of indexing, memory usage, and retrieval efficiency.
+
+### Overall Findings
+
+Overall, the scaling experiment demonstrated that dataset coverage had a substantial impact on retrieval performance. Adding relevant exercise information improved precision, increased the likelihood of retrieving at least one useful result, and reduced irrelevant retrievals.
+
+However, the results should not be interpreted as evidence that larger datasets always improve RAG performance. The datasets differed in their content as well as their size, making it difficult to isolate the effect of scale alone. A more controlled experiment could compare randomly sampled datasets of different sizes while ensuring similar topic coverage.
+
+For Rehab-It, these findings suggest that building a comprehensive and relevant rehabilitation knowledge base is important for providing useful exercise recommendations. At the same time, the system should be evaluated as the database expands to ensure that additional information does not introduce unnecessary retrieval noise or reduce response efficiency.
 ## 3.1 Failure Examples
 
 ### Example 1

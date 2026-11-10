@@ -29,7 +29,7 @@ QUERY_PREFIX = {"BAAI/bge-base-en-v1.5": "Represent this sentence for searching 
                 "BAAI/bge-large-en-v1.5": "Represent this sentence for searching relevant passages: "}
 
 # 3 chunking strategies
-CHUNKERS = ["record", "sentence", "fixed"]
+CHUNKERS = ["fixed", "overlapping_paragraph", "record"]
 FIXED_SIZE = 400               # characters per chunk for the "fixed" strategy
 FIXED_OVERLAP = 80             # characters shared between neighbouring fixed chunks
 
@@ -73,19 +73,52 @@ def make_chunks(records, strategy):
     """Return a list of {"source", "text"} chunks for one chunking strategy."""
     if strategy == "record":          # one chunk per exercise / paragraph (whole record)
         return [dict(r) for r in records]
+    if strategy == "overlapping_paragraph":
+        chunks = []
+
+        for i in range(len(records) - 1):
+            paragraph1 = records[i]["text"]
+            paragraph2 = records[i + 1]["text"]
+
+            chunks.append({
+                "source": f"{records[i]['source']} + {records[i + 1]['source']}",
+                "text": paragraph1 + "\n\n" + paragraph2
+            })
+
+        return chunks
     if strategy == "sentence":        # one chunk per sentence (small, loses the exercise name)
         return [{"source": r["source"], "text": s}
                 for r in records for s in split_sentences(r["text"])]
-    if strategy == "fixed":           # fixed-size windows over the whole corpus (can cut records apart)
-        corpus = "\n".join(r["text"] for r in records)
-        chunks, start = [], 0
-        while start < len(corpus):
-            piece = corpus[start:start + FIXED_SIZE].strip()
-            if piece:
-                chunks.append({"source": "corpus", "text": piece})
-            start += FIXED_SIZE - FIXED_OVERLAP
+    if strategy == "fixed":
+        chunks = []
+        current_chunk = []
+        current_length = 0
+
+        for record in records:
+            sentences = split_sentences(record["text"])
+
+            for sentence in sentences:
+                sentence_length = len(sentence) + 1
+
+                if current_chunk and current_length + sentence_length > FIXED_SIZE:
+                    chunks.append({
+                        "source": "corpus",
+                        "text": " ".join(current_chunk)
+                    })
+
+                    current_chunk = []
+                    current_length = 0
+
+                current_chunk.append(sentence)
+                current_length += sentence_length
+
+        if current_chunk:
+            chunks.append({
+                "source": "corpus",
+                "text": " ".join(current_chunk)
+            })
+
         return chunks
-    raise ValueError(strategy)
 
 
 # ------------------------------------------------------------------ embedding
@@ -209,4 +242,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
