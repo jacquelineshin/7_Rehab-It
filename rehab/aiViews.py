@@ -48,18 +48,20 @@ emergencyMessage = (
 )
 
 systemPrompt = (
-    "You are Rehab-It's exercise and recovery assistant. "
-    "Provide general exercise information, not medical diagnoses. "
-    "Prioritize safety and never recommend exercising through pain. "
-    "Always use EXACTLY these three headings, each followed by a short answer:\n"
-    "Recommendation:\n"
-    "What to do:\n"
-    "When to seek help:\n"
-    "Keep answers brief and use simple language. "
-    "Do not invent detailed exercise instructions when uncertain. "
-    "If you lack enough information, say so."
+    "You are Ask Rehab-It, a friendly and knowledgeable assistant "
+    "for a rehabilitation and exercise application. "
+    "Answer the user's actual question directly in a natural, conversational tone. "
+    "Use clear, simple language and keep answers concise. "
+    "For exercise recommendations, explain the options in a short paragraph "
+    "or list when helpful. "
+    "For questions about pain, injuries, or recovery, prioritize safety "
+    "and explain when medical attention may be appropriate. "
+    "Do not diagnose medical conditions, invent exercise instructions, "
+    "or promise recovery. "
+    "Never encourage exercising through pain. "
+    "Do not force answers into fixed headings or sections. "
+    "If you are unsure, acknowledge the uncertainty."
 )
-
 coachPrompt = (
     "You are an exercise coach for Rehab-It!, an exercise recovery application. "
     "Give general information, do not diagnose injuries, and prioritize safety. "
@@ -135,13 +137,8 @@ def cleanOutput(text):
 
 
 def checkOutput(text):
-    requiredSections = [
-        "Recommendation:",
-        "What to do:",
-        "When to seek help:"
-    ]
+    return bool(text and len(text.strip()) >= 15)
 
-    return all(section in text for section in requiredSections)
 
 
 def loadLocalModel():
@@ -161,17 +158,31 @@ def loadLocalModel():
 
 
 def askLocalModel(question):
-    print("NEW ASK REHAB CODE IS RUNNING", flush=True)
+    import torch
 
     tokenizer, model = loadLocalModel()
 
-    messages = [{"role": "system", "content": systemPrompt}]
-
-    for example in examples:
-        messages.append({"role": "user", "content": example["user"]})
-        messages.append({"role": "assistant", "content": example["assistant"]})
-
-    messages.append({"role": "user", "content": question})
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are Ask Rehab-It, a friendly exercise and "
+                "rehabilitation information assistant. "
+                "Answer the user's question directly and naturally. "
+                "Do not use fixed headings such as Recommendation, "
+                "What to do, or When to seek help. "
+                "Use short paragraphs or bullet points when useful. "
+                "Keep answers concise, accurate, and easy to understand. "
+                "Do not diagnose injuries or invent exercise instructions. "
+                "If the user mentions pain or concerning symptoms, "
+                "include appropriate safety guidance."
+            )
+        },
+        {
+            "role": "user",
+            "content": question
+        }
+    ]
 
     inputs = tokenizer.apply_chat_template(
         messages,
@@ -180,19 +191,20 @@ def askLocalModel(question):
         return_dict=True,
     ).to(model.device)
 
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=200,
-        do_sample=False,
-        eos_token_id=tokenizer.convert_tokens_to_ids("<|im_end|>"),
-    )
+    with torch.inference_mode():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=160,
+            do_sample=False,
+            eos_token_id=tokenizer.convert_tokens_to_ids("<|im_end|>"),
+        )
 
     newTokens = outputs[0][inputs["input_ids"].shape[1]:]
     answer = tokenizer.decode(newTokens, skip_special_tokens=True)
 
     print("RAW AI ANSWER:", repr(answer), flush=True)
-    return cleanOutput(answer)
 
+    return cleanOutput(answer)
 
 def askGroq(prompt):
     if not settings.GROQ_API_KEY:

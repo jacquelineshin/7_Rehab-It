@@ -153,3 +153,72 @@ For Rehab-It, I would initially favor an API or hybrid approach. As the applicat
 costs and model performance to determine whether moving more tasks to a local model would be worthwhile. I think the
 goal should be to find the most affordable option that still provides users with reliable, personalized exercise
 guidance.
+
+Integrating AI into Your Django App:
+
+# Rehab-It: AI Integration
+
+## Step 1.1: AI Feature Selection and Purpose
+
+For this project, I integrated an AI-powered assistant called **Ask Rehab-It** into my existing Rehab-It application. Rehab-It is designed to support users with exercise and rehabilitation, and I wanted to introduce a feature that would make general exercise and recovery information more accessible.
+
+The AI assistant allows users to ask questions about exercises, soreness, mobility, and recovery through a simple interface. Instead of searching through multiple resources, users can submit questions directly within the application and receive responses tailored to their requests. The goal was to make Rehab-It more interactive and provide an additional resource to help users better understand exercise and recovery concepts.
+
+The assistant is intended to provide general educational information rather than diagnose injuries or replace professional medical advice.
+
+## Step 1.2: AI Model Selection and Setup
+
+I selected **Qwen2.5-0.5B-Instruct**, a publicly available instruction-tuned language model hosted on Hugging Face, for the Ask Rehab-It feature. I chose this model because it could run locally without requiring a paid API, making it suitable for the project's requirements.
+
+I used Python's `transformers` library to load the model and tokenizer and generate responses based on user questions. During development, I initially tested a larger 3B-parameter version of Qwen, but it required more memory and significantly increased response times on my computer. I switched to the smaller 0.5B model, which allowed the assistant to generate responses much more efficiently while maintaining the core functionality.
+
+I also customized the system instructions to encourage clear, conversational answers related to exercise and rehabilitation, with additional safety guidance when appropriate.
+
+## Step 1.3: Local/Public Model Integration
+
+To integrate the AI model into Rehab-It, I connected the locally running Qwen model to the Django backend. The primary AI feature does not depend on a paid external API. Instead, the application loads the model using Hugging Face's `transformers` library and processes questions locally.
+
+I created backend functions in `rehab/aiViews.py` to load the model, prepare the user's question, generate a response, and process the resulting text. The application uses the model's chat template to format messages and passes them into the model for text generation.
+
+The generated response is then returned to the Django view and displayed on the Ask Rehab-It webpage. This demonstrates the integration of a publicly available language model into a functioning web application rather than using the model separately from the project.
+
+## Step 1.4: Full Application Flow Integration
+
+I integrated Ask Rehab-It into the existing Django application so that users can interact with the AI through the website rather than through a separate script or notebook.
+
+When a user opens the Ask Rehab-It page, they can enter an exercise- or rehabilitation-related question into a form. After the form is submitted, Django receives the input through a POST request and passes it to the backend for validation. If the question passes the input checks, it is processed by the local Qwen model.
+
+The model generates a response, which is then returned to the Django view and rendered on the webpage. Users can immediately read the answer within the application and submit additional questions.
+
+I tested this process by submitting exercise-related questions through the interface and confirming that the model generated responses successfully. This demonstrated that the frontend, Django backend, and local AI model were connected and functioning together.
+
+**Application Flow:**
+
+1. User enters a question through the Ask Rehab-It webpage.
+2. Django receives the submitted question.
+3. Backend functions validate the input.
+4. The local Qwen model processes the question and generates a response.
+5. The response is validated and returned to Django.
+6. The answer is displayed to the user through the website.
+
+1.5: ### Step 1.5: Guardrails and Error Handling
+
+To make Ask Rehab-It more reliable and safe for users, I implemented several guardrails to handle invalid inputs and prevent inappropriate AI responses. Since the application provides exercise and rehabilitation guidance, I wanted to make sure that users receive appropriate feedback even when their questions cannot be processed.
+
+Before a question is sent to the local Qwen model, the application checks for empty inputs, enforces a 500-character limit, and detects common prompt-injection phrases. I also implemented an emergency keyword filter that identifies potentially serious symptoms, such as chest pain, and displays a predefined safety message instead of generating exercise recommendations.
+
+In addition to input validation, the application includes output validation to reject empty or unusable AI responses. Exception handling is also included so that if the local model encounters an error, the user receives a readable error message rather than the application crashing.
+
+**Testing and Validation**
+
+I tested the implemented guardrails directly through the Ask Rehab-It interface:
+
+| Test Case | Expected Behavior | Result |
+|---|---|---|
+| Empty input | Display a message asking the user to enter a question | Passed |
+| Input exceeding 500 characters | Reject the question and display the character limit | Passed |
+| Prompt injection attempt | Block the request and display an appropriate error message | Passed |
+| Emergency-related question | Display a predefined safety warning instead of AI-generated exercise advice | Passed |
+
+All four tests produced the expected responses, demonstrating that the application can handle these invalid or potentially unsafe inputs without crashing. These results can be seen in the screenshot folder.
+These safeguards help improve the reliability of Ask Rehab-It by validating user input before model processing and providing clear feedback when a request cannot be completed. While the keyword filters do not identify every possible unsafe situation, they provide an additional layer of protection for the application's AI functionality.
