@@ -158,22 +158,25 @@ Integrating AI into Your Django App:
 
 # Rehab-It: AI Integration
 
-## Step 1.1: AI Feature Selection and Purpose
+### Step 1.1: Choose the AI Feature
 
-For this project, I integrated an AI-powered assistant called **Ask Rehab-It** into my existing Rehab-It application. Rehab-It is designed to support users with exercise and rehabilitation, and I wanted to introduce a feature that would make general exercise and recovery information more accessible.
+For Rehab-It, I chose to integrate a generative AI chatbot called **Ask Rehab-It**. The primary AI feature is text generation, allowing users to ask questions about exercise, rehabilitation, mobility, and recovery and receive responses tailored to their questions.
 
-The AI assistant allows users to ask questions about exercises, soreness, mobility, and recovery through a simple interface. Instead of searching through multiple resources, users can submit questions directly within the application and receive responses tailored to their requests. The goal was to make Rehab-It more interactive and provide an additional resource to help users better understand exercise and recovery concepts.
+I selected this feature because Rehab-It is designed to support users throughout their exercise and rehabilitation experience. While the application already provides exercise-related resources, I wanted to introduce a more interactive feature that would allow users to ask questions and receive additional explanations without having to search for information themselves.
 
-The assistant is intended to provide general educational information rather than diagnose injuries or replace professional medical advice.
+For example, users can ask about beginner-friendly exercises, muscle soreness, stretching, or general recovery practices. The AI model processes the user's question and generates a conversational response. The assistant is intended to provide general educational guidance rather than medical diagnoses or individualized treatment plans.
 
-## Step 1.2: AI Model Selection and Setup
+Step 1.2: Reuse Prior Work
 
-I selected **Qwen2.5-0.5B-Instruct**, a publicly available instruction-tuned language model hosted on Hugging Face, for the Ask Rehab-It feature. I chose this model because it could run locally without requiring a paid API, making it suitable for the project's requirements.
+For the AI integration, I built on my previous experience experimenting with generative language models and evaluating their performance. These earlier assignments helped me understand the importance of selecting a model that balances response quality, computational requirements, and speed.
 
-I used Python's `transformers` library to load the model and tokenizer and generate responses based on user questions. During development, I initially tested a larger 3B-parameter version of Qwen, but it required more memory and significantly increased response times on my computer. I switched to the smaller 0.5B model, which allowed the assistant to generate responses much more efficiently while maintaining the core functionality.
+For Ask Rehab-It, I experimented with different sizes of the Qwen2.5 instruction-tuned model. I initially integrated Qwen2.5-3B-Instruct, but encountered significant performance limitations when running the model locally. The larger model required substantial memory, and generating responses was much slower than expected. This made it less practical for an interactive chatbot where users expect relatively quick answers.
 
-I also customized the system instructions to encourage clear, conversational answers related to exercise and rehabilitation, with additional safety guidance when appropriate.
+To address these limitations, I switched to Qwen2.5-0.5B-Instruct. Although the smaller model has less capacity than the 3B version, it was able to run more efficiently on my computer and generate responses in approximately five seconds during testing. This improvement made the application much more responsive.
 
+I also experimented with the model's instructions and response formatting to improve how answers were presented. Initially, the assistant generated responses using a rigid three-section format. I adjusted the prompting approach to encourage more natural and conversational answers that better fit the user's question.
+
+These experiments reinforced the importance of considering practical performance alongside model capabilities. Ultimately, I prioritized a smaller, locally runnable model that could support a functional user experience without requiring a paid API.
 ## Step 1.3: Local/Public Model Integration
 
 To integrate the AI model into Rehab-It, I connected the locally running Qwen model to the Django backend. The primary AI feature does not depend on a paid external API. Instead, the application loads the model using Hugging Face's `transformers` library and processes questions locally.
