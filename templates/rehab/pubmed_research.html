@@ -5,45 +5,115 @@
 
 {% block rehab_content %}
 
-<h1>Rehabilitation Research</h1>
+<div class="research-page">
 
-<p>
-    Search PubMed for scientific research related to
-    rehabilitation, recovery, and exercise.
-</p>
+    <h1>Rehabilitation Research</h1>
 
-<form method="get">
-    <input
-        type="text"
-        name="q"
-        value="{{ query }}"
-        placeholder="e.g. stroke rehabilitation"
-        required
-    >
-    <button type="submit">Search Research</button>
-</form>
+    <p class="research-intro">
+        Explore scientific research on rehabilitation,
+        recovery, and exercise through PubMed.
+        Search for a topic to discover relevant studies.
+    </p>
 
-{% if error %}
-    <p>{{ error }}</p>
-{% endif %}
+    <div class="research-search-card">
 
-{% if articles %}
-    <h2>Research Articles</h2>
+        <h2>Search Research Articles</h2>
 
-    {% for article in articles %}
-        <div>
-            <h3>
-                <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
-                    {{ article.title }}
-                </a>
-            </h3>
+        <form method="get" class="research-search-form">
 
-            <p>{{ article.journal }} — {{ article.date }}</p>
+            <label for="research-query">
+                What would you like to research?
+            </label>
+
+            <input
+                id="research-query"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Example: stroke rehabilitation, neurological recovery, physical therapy"
+                required
+            >
+
+            <button type="submit">
+                Search PubMed
+            </button>
+
+        </form>
+
+    </div>
+
+    {% if error %}
+        <div class="research-message" role="alert">
+            <p>{{ error }}</p>
         </div>
-    {% endfor %}
+    {% endif %}
 
-{% elif query and not error %}
-    <p>No articles found for this search.</p>
-{% endif %}
+    {% if articles %}
+
+        <div class="research-results-header">
+            <h2>Research Articles</h2>
+            <p>
+                Showing research related to
+                <strong>{{ query }}</strong>
+            </p>
+        </div>
+
+        <div class="research-results">
+
+            {% for article in articles %}
+
+                <article class="research-article-card">
+
+                    <h3>
+                        <a
+                            href="{{ article.url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {{ article.title }}
+                        </a>
+                    </h3>
+
+                    <p class="research-article-meta">
+                        {{ article.journal }}
+                        {% if article.date %}
+                            | {{ article.date }}
+                        {% endif %}
+                    </p>
+
+                    <a
+                        class="research-article-link"
+                        href="{{ article.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View Article on PubMed →
+                    </a>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    {% elif query and not error %}
+
+        <div class="research-message">
+            <h3>No articles found</h3>
+            <p>
+                Try using different keywords or
+                searching for a broader topic.
+            </p>
+        </div>
+
+    {% endif %}
+
+    <p class="research-disclaimer">
+        Research articles are provided for educational purposes.
+        Individual studies should not be interpreted as
+        personalized medical recommendations.
+    </p>
+
+</div>
 
 {% endblock %}

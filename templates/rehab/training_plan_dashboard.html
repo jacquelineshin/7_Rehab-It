@@ -1,37 +1,308 @@
+
 {% extends "rehab/base.html" %}
 
-{% block title %}
-    Training Plan Dashboard
-{% endblock %}
+{% block title %}Training Plan Dashboard{% endblock %}
 
 {% block rehab_content %}
-    <h1>Training Plan Dashboard</h1>
+
+<div class="training-dashboard">
+
+    <!-- Dashboard Header -->
+    <div class="training-header">
+
+        <div>
+            <h1>Training Plan Dashboard</h1>
+            <p>
+                Organize your rehabilitation sessions,
+                manage exercises, and track your progress.
+            </p>
+        </div>
+
+        <a href="{% url 'training_plan_create' %}"
+           class="training-btn">
+            + Create Training Plan
+        </a>
+
+    </div>
 
     {% if plan %}
-        <h2>{{ plan.name }}</h2>
 
-        <p>Start Date: {{ plan.start_date }}</p>
-        <p>End Date: {{ plan.end_date }}</p>
+        <!-- Active Training Plan -->
+        <div class="training-card">
 
-        <h3>Workout Sessions</h3>
+            <div class="training-plan-header">
 
-        <ul>
+                <div>
+                    <span class="training-label">
+                        ACTIVE TRAINING PLAN
+                    </span>
+
+                    <h2>{{ plan.name }}</h2>
+
+                    <p class="training-dates">
+                        {{ plan.start_date|date:"M d, Y" }}
+                        –
+                        {{ plan.end_date|date:"M d, Y" }}
+                    </p>
+
+                    <!-- Training Plan Actions -->
+                    <div class="training-plan-actions">
+
+                        <a href="{% url 'training_plan_edit' plan.pk %}"
+                           class="training-secondary-btn">
+                            Edit Training Plan
+                        </a>
+
+                        <form method="post"
+                              action="{% url 'training_plan_finish' plan.pk %}">
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="training-secondary-btn"
+                                    onclick="return confirm('Finish this training plan and move it to history?');">
+                                Finish Training Plan
+                            </button>
+                        </form>
+
+                        <a href="{% url 'training_plan_history' %}"
+                           class="training-secondary-btn">
+                            View Training Plan History
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <a href="{% url 'workout_session_create' plan.pk %}"
+                   class="training-btn">
+                    + Add Workout Session
+                </a>
+
+            </div>
+
+            <!-- Overall Progress -->
+            <div class="training-progress">
+
+                <div class="training-progress-heading">
+                    <h3>Overall Progress</h3>
+                    <strong>{{ percentComplete }}%</strong>
+                </div>
+
+                <div class="training-progress-track"
+                     role="progressbar"
+                     aria-label="Training plan completion"
+                     aria-valuenow="{{ percentComplete }}"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+
+                    <div class="training-progress-fill"
+                         style="width: {{ percentComplete }}%;">
+                    </div>
+
+                </div>
+
+                <p>
+                    {{ completedCount }} of {{ totalCount }}
+                    workout sessions completed
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- Workout Sessions Header -->
+        <div class="training-sessions-header">
+            <h2>Workout Sessions</h2>
+            <span>{{ totalCount }} sessions</span>
+        </div>
+
+        <!-- Workout Session List -->
+        <div class="training-session-list">
+
             {% for session in sessions %}
-                <li>
-                    <a href="{% url 'workout_session_detail' session.pk %}">
-                        {{ session }}
-                    </a>
-                </li>
-            {% empty %}
-                <li>No workout sessions exist.</li>
-            {% endfor %}
-        </ul>
 
-        <p>Total Sessions: {{ totalCount }}</p>
-        <p>Completed Sessions: {{ completedCount }}</p>
-        <p>Progress: {{ percentComplete }}%</p>
+                <div class="training-session-card">
+
+                    <!-- Session Header -->
+                    <div class="training-session-top">
+
+                        <div>
+                            <h3>
+                                <a href="{% url 'workout_session_detail' session.pk %}">
+                                    {{ session.name }}
+                                </a>
+                            </h3>
+
+                            <p class="training-session-date">
+                                {{ session.date|date:"M d, Y" }}
+                            </p>
+                        </div>
+
+                        {% if session.completed %}
+
+                            <span class="training-status completed">
+                                ✓ Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="training-status pending">
+                                Not Completed
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                    <!-- Exercises -->
+                    <div class="training-session-exercises">
+
+                        <h4>Exercises</h4>
+
+                        <ul>
+                            {% for exercise in session.exercises.all %}
+
+                                <li>{{ exercise.name }}</li>
+
+                            {% empty %}
+
+                                <li>No exercises added yet.</li>
+
+                            {% endfor %}
+                        </ul>
+
+                    </div>
+
+                    <!-- Workout Reflection Summary -->
+                    {% if session.completed %}
+
+                        {% if session.difficulty_rating or session.reflection_notes %}
+
+                            <div class="training-session-exercises">
+
+                                <h4>Workout Reflection</h4>
+
+                                {% if session.difficulty_rating %}
+                                    <p>
+                                        <strong>Difficulty:</strong>
+                                        {{ session.get_difficulty_rating_display }}
+                                        ({{ session.difficulty_rating }}/5)
+                                    </p>
+                                {% endif %}
+
+                                {% if session.reflection_notes %}
+                                    <p>
+                                        <strong>Notes:</strong>
+                                        {{ session.reflection_notes|linebreaksbr }}
+                                    </p>
+                                {% endif %}
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endif %}
+
+                    <!-- Workout Session Actions -->
+                    <div class="training-session-actions">
+
+                        <a href="{% url 'workout_session_detail' session.pk %}"
+                           class="training-secondary-btn">
+                            View Session
+                        </a>
+
+                        <a href="{% url 'workout_session_edit' plan.pk session.pk %}"
+                           class="training-secondary-btn">
+                            Edit Session
+                        </a>
+
+                        <a href="{% url 'workout_session_delete' plan.pk session.pk %}"
+                           class="training-delete-btn">
+                            Delete Session
+                        </a>
+
+                        {% if session.completed %}
+
+                            <a href="{% url 'workout_reflection' session.pk %}"
+                               class="training-btn">
+
+                                {% if session.difficulty_rating or session.reflection_notes %}
+                                    Edit Reflection
+                                {% else %}
+                                    + Add Reflection
+                                {% endif %}
+
+                            </a>
+
+                        {% else %}
+
+                            <form method="post"
+                                  action="{% url 'workout_session_complete' session.pk %}">
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                        class="training-btn">
+                                    Mark Complete
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% empty %}
+
+                <!-- No Workout Sessions -->
+                <div class="training-empty-state">
+
+                    <h3>No Workout Sessions Yet</h3>
+
+                    <p>
+                        Start building your training plan
+                        by adding your first workout session.
+                    </p>
+
+                    <a href="{% url 'workout_session_create' plan.pk %}"
+                       class="training-btn">
+                        + Add Your First Session
+                    </a>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
 
     {% else %}
-        <p>No active training plans exist.</p>
+
+        <!-- No Active Training Plan -->
+        <div class="training-empty-state">
+
+            <h2>No Active Training Plan</h2>
+
+            <p>
+                Create a training plan to organize
+                your rehabilitation exercises
+                and track your progress.
+            </p>
+
+            <a href="{% url 'training_plan_create' %}"
+               class="training-btn">
+                + Create Your First Training Plan
+            </a>
+
+            <a href="{% url 'training_plan_history' %}"
+               class="training-secondary-btn">
+                View Training Plan History
+            </a>
+
+        </div>
+
     {% endif %}
+
+</div>
+
 {% endblock %}

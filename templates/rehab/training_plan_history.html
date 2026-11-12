@@ -1,20 +1,104 @@
+
 {% extends "rehab/base.html" %}
 
-{% block title %}
-    Training Plan History
-{% endblock %}
+{% block title %}Training Plan History{% endblock %}
 
 {% block rehab_content %}
-    <h1>Training Plan History</h1>
-    <ul>
+
+<div class="training-dashboard">
+
+    <div class="training-header">
+        <div>
+            <h1>Training Plan History</h1>
+            <p>
+                Review your previous rehabilitation plans,
+                workout sessions, and progress.
+            </p>
+        </div>
+
+        <a href="{% url 'training_plan_dashboard' %}"
+           class="training-secondary-btn">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="training-sessions-header">
+        <h2>Previous Training Plans</h2>
+    </div>
+
+    <div class="training-session-list">
+
         {% for training_plan in training_plans %}
-            <li>
-                <a href="{{ training_plan.get_absolute_url }}">
-                        {{ training_plan.name }}
-                </a>
-            </li>
+
+            <div class="training-session-card">
+
+                <div class="training-session-top">
+
+                    <div>
+                        <span class="training-label">
+                            PREVIOUS TRAINING PLAN
+                        </span>
+
+                        <h3>{{ training_plan.name }}</h3>
+
+                        <p class="training-session-date">
+                            {{ training_plan.start_date|date:"M d, Y" }}
+                            –
+                            {{ training_plan.end_date|date:"M d, Y" }}
+                        </p>
+                    </div>
+
+                    <span class="training-status completed">
+                        Finished
+                    </span>
+
+                </div>
+
+                <div class="training-session-exercises">
+
+                    <h4>Workout Summary</h4>
+
+                    <p>
+                        <strong>Total Sessions:</strong>
+                        {{ training_plan.workout_sessions.count }}
+                    </p>
+
+                </div>
+
+                <div class="training-session-actions">
+
+                    <a href="{{ training_plan.get_absolute_url }}"
+                       class="training-btn">
+                        View Training Plan
+                    </a>
+
+                </div>
+
+            </div>
+
         {% empty %}
-            <li>No inactive training plans exist.</li>
+
+            <div class="training-empty-state">
+
+                <h3>No Previous Training Plans</h3>
+
+                <p>
+                    When you finish a training plan,
+                    it will appear here so you can
+                    review your rehabilitation progress.
+                </p>
+
+                <a href="{% url 'training_plan_dashboard' %}"
+                   class="training-btn">
+                    Return to Dashboard
+                </a>
+
+            </div>
+
         {% endfor %}
-    </ul>
+
+    </div>
+
+</div>
+
 {% endblock %}

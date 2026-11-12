@@ -1,0 +1,71 @@
+
+{% extends "rehab/base.html" %}
+
+{% block title %}Add Workout Session{% endblock %}
+
+{% block rehab_content %}
+
+<div class="ai-page">
+
+    <h1>
+    {% if editing %}
+        Edit Workout Session
+    {% else %}
+        Add Workout Session
+    {% endif %}
+</h1>
+    <p class="ai-page-intro">
+        Add a workout session to your
+        <strong>{{ plan.name }}</strong> training plan.
+        Select the exercises you want to include.
+    </p>
+
+    <div class="card">
+
+        <h2>Session Details</h2>
+
+        <form method="post" class="ai-form">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <label for="{{ form.name.id_for_label }}">
+                Session Name
+            </label>
+            {{ form.name }}
+            {{ form.name.errors }}
+
+            <label for="{{ form.date.id_for_label }}">
+                Session Date
+            </label>
+            {{ form.date }}
+            {{ form.date.errors }}
+
+            <h3>Select Exercises</h3>
+
+            <div class="exercise-checkbox-list">
+                {{ form.exercises }}
+            </div>
+            {{ form.exercises.errors }}
+
+            <button type="submit" class="ai-submit">
+            {% if editing %}
+                Save Changes
+            {% else %}
+                Save Workout Session
+            {% endif %}
+            </button>
+
+        </form>
+
+    </div>
+
+    <p>
+        <a href="{% url 'training_plan_dashboard' %}">
+            Cancel and Return to Dashboard
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}

@@ -1,25 +1,208 @@
+
 {% extends "rehab/base.html" %}
 
-{% block title %}
-    Training Plan Details
-{% endblock %}
+{% block title %}Training Plan Details{% endblock %}
 
 {% block rehab_content %}
-    <h1>{{ training_plan.name }}</h1>
 
-    <p>Start Date: {{ training_plan.start_date }}</p>
-    <p>End Date: {{ training_plan.end_date }}</p>
-    <p>Active: {{ training_plan.active }}</p>
-    <ul>
-        {% for workout_session in workout_sessions %}
-            <li>
-                <a href="{% url 'workout_session_detail' workout_session.pk %}">
-                    {{ workout_session }}
-                </a>
-            </li>
+<div class="training-dashboard">
+
+    <!-- Header -->
+    <div class="training-header">
+
+        <div>
+            <h1>{{ training_plan.name }}</h1>
+
+            <p>
+                Review your training plan,
+                workout sessions, and reflections.
+            </p>
+        </div>
+
+        <a href="{% url 'training_plan_history' %}"
+           class="training-secondary-btn">
+            Back to History
+        </a>
+
+    </div>
+
+    <!-- Training Plan Summary -->
+    <div class="training-card">
+
+        <span class="training-label">
+            TRAINING PLAN SUMMARY
+        </span>
+
+        <h2>{{ training_plan.name }}</h2>
+
+        <p class="training-dates">
+            {{ training_plan.start_date|date:"M d, Y" }}
+            –
+            {{ training_plan.end_date|date:"M d, Y" }}
+        </p>
+
+        {% if training_plan.active %}
+
+            <span class="training-status pending">
+                Active
+            </span>
+
+        {% else %}
+
+            <span class="training-status completed">
+                Finished
+            </span>
+
+        {% endif %}
+
+        <!-- Completion Progress -->
+        <div class="training-progress">
+
+            <div class="training-progress-heading">
+                <h3>Overall Progress</h3>
+                <strong>{{ percentComplete }}%</strong>
+            </div>
+
+            <div class="training-progress-track"
+                 role="progressbar"
+                 aria-label="Training plan completion"
+                 aria-valuenow="{{ percentComplete }}"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+
+                <div class="training-progress-fill"
+                     style="width: {{ percentComplete }}%;">
+                </div>
+
+            </div>
+
+            <p>
+                {{ completedCount }} of {{ totalCount }}
+                workout sessions completed
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Workout Sessions -->
+    <div class="training-sessions-header">
+
+        <h2>Workout Sessions</h2>
+
+        <span>{{ totalCount }} sessions</span>
+
+    </div>
+
+    <div class="training-session-list">
+
+        {% for session in workout_sessions %}
+
+            <div class="training-session-card">
+
+                <!-- Session Header -->
+                <div class="training-session-top">
+
+                    <div>
+                        <h3>{{ session.name }}</h3>
+
+                        <p class="training-session-date">
+                            {{ session.date|date:"M d, Y" }}
+                        </p>
+                    </div>
+
+                    {% if session.completed %}
+
+                        <span class="training-status completed">
+                            ✓ Completed
+                        </span>
+
+                    {% else %}
+
+                        <span class="training-status pending">
+                            Not Completed
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+                <!-- Exercises -->
+                <div class="training-session-exercises">
+
+                    <h4>Exercises</h4>
+
+                    <ul>
+                        {% for exercise in session.exercises.all %}
+
+                            <li>{{ exercise.name }}</li>
+
+                        {% empty %}
+
+                            <li>No exercises recorded.</li>
+
+                        {% endfor %}
+                    </ul>
+
+                </div>
+
+                <!-- Workout Reflection -->
+                {% if session.difficulty_rating or session.reflection_notes %}
+
+                    <div class="training-session-exercises">
+
+                        <h4>Workout Reflection</h4>
+
+                        {% if session.difficulty_rating %}
+
+                            <p>
+                                <strong>Difficulty:</strong>
+                                {{ session.get_difficulty_rating_display }}
+                                ({{ session.difficulty_rating }}/5)
+                            </p>
+
+                        {% endif %}
+
+                        {% if session.reflection_notes %}
+
+                            <p>
+                                <strong>Notes:</strong>
+                                {{ session.reflection_notes|linebreaksbr }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                {% elif session.completed %}
+
+                    <div class="training-session-exercises">
+                        <p>
+                            No reflection recorded for this workout.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
         {% empty %}
-            <li>No workout sessions exist.</li>
+
+            <div class="training-empty-state">
+
+                <h3>No Workout Sessions</h3>
+
+                <p>
+                    No workout sessions were recorded
+                    for this training plan.
+                </p>
+
+            </div>
+
         {% endfor %}
-    </ul>
+
+    </div>
+
+</div>
 
 {% endblock %}

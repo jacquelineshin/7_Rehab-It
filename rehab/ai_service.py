@@ -62,16 +62,27 @@ def retrieve_exercises(query, top_k=3):
 
     similarities = document_embeddings @ query_embedding
 
-    top_indices = np.argsort(similarities)[::-1][:top_k]
+    top_indices = np.argsort(similarities)[::-1]
 
-    return [exercises[i] for i in top_indices]
+    beginner_terms = ["beginner", "easy", "low difficulty"]
+
+    if any(term in query.lower() for term in beginner_terms):
+        beginner_indices = [
+            i for i in top_indices
+            if exercises[i]["difficulty"] <= 3
+        ]
+
+        if beginner_indices:
+            return [exercises[i] for i in beginner_indices[:top_k]]
+
+    return [exercises[i] for i in top_indices[:top_k]]
 
 
 def generate_exercise_response(query):
     print("STEP 1: Starting AI request", flush=True)
 
     exercises = retrieve_exercises(query)
-
+    print("RETRIEVED EXERCISES:", exercises, flush=True)
     print("STEP 2: Exercise retrieval finished", flush=True)
 
     if not exercises:
@@ -108,10 +119,16 @@ def generate_exercise_response(query):
             "content": (
                 f"Exercise information:\n{context}\n\n"
                 f"Question: {query}\n\n"
-                "Provide a clear answer grounded in the exercise information. "
-                "Keep your response to 2-3 short sentences. "
-                "Only recommend exercises from the provided database. "
-                "Finish your answer completely without unnecessary details."
+                "Answer the user's question using only the exercise information provided. "
+                "Consider both the user's requested difficulty level and the difficulty "
+                "values of the retrieved exercises. "
+                "For beginner requests, prefer lower-difficulty exercises. "
+                "Do not assume the first retrieved exercise is the best recommendation. "
+                "Recommend up to two suitable exercises by name and briefly explain "
+                "how to perform them using their provided descriptions. "
+                "Do not invent exercise instructions or claim an exercise is easy "
+                "if its description indicates it requires advanced strength or balance. "
+                "Keep the answer concise and complete."
             )
         }
     ]
@@ -134,7 +151,7 @@ def generate_exercise_response(query):
     with torch.inference_mode():
         outputs = model.generate(
             **inputs,
-            max_new_tokens=150,
+            max_new_tokens=180,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id
         )

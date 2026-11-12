@@ -1,44 +1,100 @@
+
 {% extends "rehab/base.html" %}
 
 {% block title %}Exercise Coach{% endblock %}
 
 {% block rehab_content %}
 
-<h1>Exercise Coach</h1>
+<div class="ai-page">
 
-<p>
-    Pick an exercise from our exercise list to get tips on how to do it safely.
-    These tips come from an outside AI service (Groq, {{ modelName }}).
-</p>
+    <h1>Exercise Coach</h1>
 
-<form method="post">
-    {% csrf_token %}
-    <select name="exercise" required>
-        <option value="">Pick an exercise</option>
-        {% for exercise in exercises %}
-            <option value="{{ exercise.pk }}" {% if exercise == selectedExercise %}selected{% endif %}>
-                {{ exercise.name }}
-            </option>
-        {% empty %}
-            <option value="">No exercises yet</option>
-        {% endfor %}
-    </select>
-    <br>
-    <input type="text" name="note" value="{{ note }}" maxlength="500" size="60"
-           placeholder="Optional: anything we should know? (e.g. my knee is sore)">
-    <br>
-    <button type="submit">Get Tips</button>
-</form>
+    <p class="ai-page-intro">
+        Select an exercise to learn about proper technique,
+        common mistakes, easier variations, and when to stop.
+    </p>
 
-{% if error %}
-    <p>{{ error }}</p>
-{% endif %}
+    <div class="card">
+        <h2>Get Exercise Guidance</h2>
 
-{% if answer %}
-    <h2>Tips for {{ selectedExercise.name }}</h2>
-    <p>{{ answer|linebreaksbr }}</p>
-{% endif %}
+        <p>
+            AI-generated guidance powered by Groq
+            ({{ modelName }}).
+        </p>
 
-<p><em>Rehab-It gives general information only and is not medical advice.</em></p>
+        <form method="post" class="ai-form">
+            {% csrf_token %}
+
+            <label for="exercise">
+                Select an Exercise
+            </label>
+
+            <select
+                id="exercise"
+                name="exercise"
+                required
+            >
+                <option value="">Choose an exercise</option>
+
+                {% for exercise in exercises %}
+                    <option
+                        value="{{ exercise.pk }}"
+                        {% if exercise == selectedExercise %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ exercise.name }}
+                    </option>
+                {% empty %}
+                    <option value="">
+                        No exercises available
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="note">
+                Additional Information (Optional)
+            </label>
+
+            <textarea
+                id="note"
+                name="note"
+                rows="3"
+                maxlength="500"
+                placeholder="Example: I'm new to this exercise and would like an easier variation."
+            >{{ note }}</textarea>
+
+            <button type="submit" class="ai-submit">
+                Get Exercise Tips
+            </button>
+        </form>
+    </div>
+
+    {% if error %}
+        <div class="ai-result" role="alert">
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+
+    {% if answer %}
+        <div class="ai-result">
+
+            <h2>
+                Tips for {{ selectedExercise.name }}
+            </h2>
+
+            <p>{{ answer|linebreaksbr }}</p>
+
+        </div>
+    {% endif %}
+
+    <p class="ai-disclaimer">
+        Exercise Coach provides AI-generated information
+        for educational purposes only. Exercise guidance
+        should not replace advice from a qualified
+        healthcare professional.
+    </p>
+
+</div>
 
 {% endblock %}

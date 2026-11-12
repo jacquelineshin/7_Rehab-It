@@ -1,0 +1,53 @@
+
+{% extends "rehab/base.html" %}
+
+{% block title %}Delete Workout Session{% endblock %}
+
+{% block rehab_content %}
+
+<div class="ai-page">
+
+    <h1>Delete Workout Session</h1>
+
+    <p class="ai-page-intro">
+        Are you sure you want to remove this workout
+        session from your training plan?
+    </p>
+
+    <div class="card">
+
+        <h2>{{ session.name }}</h2>
+
+        <p>
+            <strong>Date:</strong>
+            {{ session.date|date:"M d, Y" }}
+        </p>
+
+        <p>
+            <strong>Training Plan:</strong>
+            {{ plan.name }}
+        </p>
+
+        <p>
+            This action will remove the session
+            from this training plan.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <button type="submit" class="training-btn">
+                Confirm Delete
+            </button>
+
+            <a href="{% url 'training_plan_dashboard' %}"
+               class="training-secondary-btn">
+                Cancel
+            </a>
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

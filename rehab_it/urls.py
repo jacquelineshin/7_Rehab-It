@@ -24,7 +24,16 @@ from rehab.views import (
     ReportsRehabView,
     rehab_csv, rehab_json,
     pubmed_research,
-    ai_assistant
+    ai_assistant,
+    TrainingPlanCreateView,
+    WorkoutSessionCreateView,
+    WorkoutSessionCompleteView,
+    WorkoutSessionUpdateView,
+    WorkoutSessionDeleteView,
+    TrainingPlanUpdateView,
+    TrainingPlanFinishView,
+    WorkoutReflectionView,
+
 )
 from rehab.apiViews import (
     exerciseApi,
@@ -91,4 +100,14 @@ urlpatterns = [
     path("ai/ask/", askRehab, name="askRehab"),
     path("ai/coach/", exerciseCoach, name="exerciseCoach"),
     path("ai-assistant/", ai_assistant, name="ai_assistant"),
+    path("training-plans/create/", TrainingPlanCreateView.as_view(), name="training_plan_create"),
+    path("training-plans/<int:pk>/sessions/create/", WorkoutSessionCreateView.as_view(), name="workout_session_create"),
+    path("workout-sessions/<int:pk>/complete/", WorkoutSessionCompleteView.as_view(),name="workout_session_complete"),
+    path("training-plans/<int:plan_pk>/sessions/<int:pk>/edit/", WorkoutSessionUpdateView.as_view(), name="workout_session_edit"),
+    path("training-plans/<int:plan_pk>/sessions/<int:pk>/delete/", WorkoutSessionDeleteView.as_view(), name="workout_session_delete"),
+    path("training-plans/<int:pk>/edit/", TrainingPlanUpdateView.as_view(), name="training_plan_edit"),
+    path("training-plans/<int:pk>/finish/", TrainingPlanFinishView.as_view(), name="training_plan_finish"),
+    path("workout-sessions/<int:pk>/reflection/", WorkoutReflectionView.as_view(), name="workout_reflection"),
+    path("training-plans/<int:pk>/", TrainingPlanDetailView.as_view(), name="training_plan_detail"),
 ]
+

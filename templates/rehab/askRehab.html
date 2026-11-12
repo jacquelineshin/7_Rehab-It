@@ -1,33 +1,68 @@
+
 {% extends "rehab/base.html" %}
 
 {% block title %}Ask Rehab-It{% endblock %}
 
 {% block rehab_content %}
 
-<h1>Ask Rehab-It</h1>
+<div class="ai-page">
 
-<p>
-    Ask a question about exercise or recovery. This answer comes from a small AI model
-    ({{ modelName }}) running on our own server.
-</p>
+    <h1>Ask Rehab-It</h1>
 
-<form method="post">
-    {% csrf_token %}
-    <textarea name="question" rows="4" cols="60" maxlength="500"
-              placeholder="e.g. My knee is sore the day after squats. What should I do?" required>{{ question }}</textarea>
-    <br>
-    <button type="submit">Ask</button>
-</form>
+    <p class="ai-page-intro">
+        Have a question about exercise or recovery?
+        Ask our AI assistant for general information
+        and guidance.
+    </p>
 
-{% if error %}
-    <p>{{ error }}</p>
-{% endif %}
+    <div class="card">
+        <h2>Ask a Question</h2>
 
-{% if answer %}
-    <h2>Answer</h2>
-    <p>{{ answer|linebreaksbr }}</p>
-{% endif %}
+        <p>
+            Powered by {{ modelName }}, running locally.
+        </p>
 
-<p><em>Rehab-It gives general information only and is not medical advice.</em></p>
+        <form method="post" class="ai-form">
+            {% csrf_token %}
+
+            <label for="question">
+                What would you like to know?
+            </label>
+
+            <textarea
+                id="question"
+                name="question"
+                rows="5"
+                maxlength="500"
+                required
+                placeholder="Example: My knee is sore the day after squats. What should I do?"
+            >{{ question }}</textarea>
+
+            <button type="submit" class="ai-submit">
+                Ask Rehab-It
+            </button>
+        </form>
+    </div>
+
+    {% if error %}
+        <div class="ai-result" role="alert">
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+
+    {% if answer %}
+        <div class="ai-result">
+            <h2>Rehab-It's Response</h2>
+            <p>{{ answer|linebreaksbr }}</p>
+        </div>
+    {% endif %}
+
+    <p class="ai-disclaimer">
+        Rehab-It provides general exercise and recovery
+        information only. It does not diagnose medical
+        conditions or replace professional medical advice.
+    </p>
+
+</div>
 
 {% endblock %}

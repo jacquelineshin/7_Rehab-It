@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-
+from django.conf import settings
 from account.models import User
 
 
@@ -39,6 +39,24 @@ class WorkoutSession(models.Model):
     name = models.CharField(max_length=100, default="")
     date = models.DateField()
     completed = models.BooleanField(default=False)
+
+    difficulty_rating = models.PositiveSmallIntegerField(
+        choices=[
+            (1, "Very Easy"),
+            (2, "Easy"),
+            (3, "Moderate"),
+            (4, "Difficult"),
+            (5, "Very Difficult"),
+        ],
+        null=True,
+        blank=True
+    )
+
+    reflection_notes = models.TextField(
+        blank=True,
+        default=""
+    )
+
     exercises = models.ManyToManyField(Exercise)
 
     def __str__(self):
@@ -62,6 +80,13 @@ class TrainingPlan(models.Model):
     Includes the workout sessions involved in the training plan.
     """
     training_plan_id = models.AutoField(primary_key=True)
+    account = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="rehab_training_plans"
+    )
     name = models.CharField(max_length=100)
     start_date = models.DateField()
     end_date = models.DateField()

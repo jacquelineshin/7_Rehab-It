@@ -12,13 +12,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template import loader
 from django.views import View
 from django.views.generic import ListView, DetailView, TemplateView
 
 from .decorators import api_login_required
 from .models import Exercise, WorkoutSession, TrainingPlan
+from .forms import TrainingPlanForm, WorkoutSessionForm, WorkoutReflectionForm
+
 from django.shortcuts import render
 # ---------- PUBLIC pages ----------
 
@@ -26,8 +28,115 @@ def home(request):
     return render(request, "rehab/home.html")
 
 
+
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
 def exercise_chart_page(request):
-    return render(request, "rehab/exercise_chart.html")
+
+    # Find the user's most recent active training plan
+    plan = (
+        TrainingPlan.objects
+        .filter(
+            account=request.user,
+            active=True
+        )
+        .order_by("-start_date")
+        .first()
+    )
+
+    # Default values when no active plan exists
+    total_count = 0
+    completed_count = 0
+    percent_complete = 0
+
+    if plan:
+
+        sessions = plan.workout_sessions.all()
+
+        total_count = sessions.count()
+
+        completed_count = sessions.filter(
+            completed=True
+        ).count()
+
+        if total_count > 0:
+            percent_complete = round(
+                (completed_count / total_count) * 100
+            )
+
+    # Get the user's five most recent workout sessions,
+    # including sessions from finished training plans
+    recent_sessions = (
+        WorkoutSession.objects
+        .filter(
+            trainingplan__account=request.user,
+            completed=True
+        )
+        .distinct()
+        .order_by("-date", "-pk")[:5]
+    )
+
+    # Get completed workouts with difficulty ratings
+    rated_sessions = (
+        WorkoutSession.objects
+        .filter(
+            trainingplan__account=request.user,
+            completed=True,
+            difficulty_rating__isnull=False
+        )
+        .distinct()
+        .order_by("date", "pk")
+    )
+
+    # Prepare data for the difficulty-over-time chart
+    difficulty_labels = [
+        session.date.strftime("%b %d, %Y")
+        for session in rated_sessions
+    ]
+
+    difficulty_values = [
+        session.difficulty_rating
+        for session in rated_sessions
+    ]
+
+
+    # Dates of completed workouts belonging to this user
+    completed_workout_dates = list(
+        WorkoutSession.objects
+        .filter(
+            trainingplan__account=request.user,
+            completed=True
+        )
+        .values_list("date", flat=True)
+        .distinct()
+    )
+
+    # Convert dates into strings for JavaScript
+    calendar_dates = [
+        date.isoformat()
+        for date in completed_workout_dates
+    ]
+
+    context = {
+        "plan": plan,
+        "totalCount": total_count,
+        "completedCount": completed_count,
+        "percentComplete": percent_complete,
+        "recent_sessions": recent_sessions,
+        "difficulty_labels": difficulty_labels,
+        "difficulty_values": difficulty_values,
+        "calendar_dates": calendar_dates,
+    }
+
+
+    return render(
+        request,
+        "rehab/exercise_chart.html",
+        context
+    )
+
 
 
 # ---------- PROTECTED pages ----------
@@ -92,22 +201,54 @@ class TrainingPlanListView(LoginRequiredMixin, ListView):
     context_object_name = "training_plans"
 
     def get_queryset(self):
-        return TrainingPlan.objects.filter(active=False)
+        return TrainingPlan.objects.filter(
+            account=self.request.user,
+            active=False
+        ).order_by("-start_date")
 
 
-class TrainingPlanDetailView(LoginRequiredMixin, DetailView):
-    model = TrainingPlan
-    template_name = "rehab/training_plan_detail.html"
-    context_object_name = "training_plan"
 
-    def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
+class TrainingPlanDetailView(LoginRequiredMixin, View):
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["results"] = self.request.POST.get("results") or self.request.GET.get("results")
-        context["workout_sessions"] = self.object.workout_sessions.all()
-        return context
+    def get(self, request, pk):
+
+        training_plan = get_object_or_404(
+            TrainingPlan,
+            pk=pk,
+            account=request.user
+        )
+
+        workout_sessions = (
+            training_plan.workout_sessions
+            .prefetch_related("exercises")
+            .order_by("date")
+        )
+
+        total_count = workout_sessions.count()
+
+        completed_count = workout_sessions.filter(
+            completed=True
+        ).count()
+
+        if total_count > 0:
+            percent_complete = round(
+                (completed_count / total_count) * 100
+            )
+        else:
+            percent_complete = 0
+
+        return render(
+            request,
+            "rehab/training_plan_detail.html",
+            {
+                "training_plan": training_plan,
+                "workout_sessions": workout_sessions,
+                "totalCount": total_count,
+                "completedCount": completed_count,
+                "percentComplete": percent_complete,
+            }
+        )
+
 
 
 class WorkoutSessionDetailView(LoginRequiredMixin, DetailView):
@@ -121,9 +262,271 @@ class WorkoutSessionDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+
+class TrainingPlanCreateView(LoginRequiredMixin, View):
+
+    def get(self, request):
+        form = TrainingPlanForm()
+
+        return render(
+            request,
+            "rehab/training_plan_form.html",
+            {"form": form}
+        )
+
+    def post(self, request):
+        form = TrainingPlanForm(request.POST)
+
+        if form.is_valid():
+            from account.models import User as RehabUser
+
+            # Find or create a custom user linked by name
+            first_name = request.user.first_name or request.user.username
+            last_name = request.user.last_name or "Account"
+
+            rehab_user, created = RehabUser.objects.get_or_create(
+                first_name=first_name,
+                last_name=last_name
+            )
+
+            training_plan = form.save(commit=False)
+            training_plan.user_id = rehab_user
+            training_plan.account = request.user
+            training_plan.save()
+
+            return redirect("training_plan_dashboard")
+
+        return render(
+            request,
+            "rehab/training_plan_form.html",
+            {"form": form}
+        )
+
+
+class TrainingPlanUpdateView(LoginRequiredMixin, View):
+
+    def get_plan(self, request, pk):
+        return get_object_or_404(
+            TrainingPlan,
+            pk=pk,
+            account=request.user
+        )
+
+    def get(self, request, pk):
+        plan = self.get_plan(request, pk)
+
+        form = TrainingPlanForm(instance=plan)
+
+        return render(
+            request,
+            "rehab/training_plan_form.html",
+            {
+                "form": form,
+                "editing": True,
+                "plan": plan
+            }
+        )
+
+    def post(self, request, pk):
+        plan = self.get_plan(request, pk)
+
+        form = TrainingPlanForm(
+            request.POST,
+            instance=plan
+        )
+
+        if form.is_valid():
+            form.save()
+
+            return redirect("training_plan_dashboard")
+
+        return render(
+            request,
+            "rehab/training_plan_form.html",
+            {
+                "form": form,
+                "editing": True,
+                "plan": plan
+            }
+        )
+
+class TrainingPlanFinishView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+        plan = get_object_or_404(
+            TrainingPlan,
+            pk=pk,
+            account=request.user,
+            active=True
+        )
+
+        plan.active = False
+        plan.save(update_fields=["active"])
+
+        return redirect("training_plan_history")
+
+class WorkoutSessionCreateView(LoginRequiredMixin, View):
+
+    def get_plan(self, request, pk):
+        return get_object_or_404(
+            TrainingPlan,
+            pk=pk,
+            account=request.user
+        )
+
+    def get(self, request, pk):
+        plan = self.get_plan(request, pk)
+        form = WorkoutSessionForm()
+
+        return render(
+            request,
+            "rehab/workout_session_form.html",
+            {
+                "form": form,
+                "plan": plan
+            }
+        )
+
+    def post(self, request, pk):
+        plan = self.get_plan(request, pk)
+        form = WorkoutSessionForm(request.POST)
+
+        if form.is_valid():
+            session = form.save()
+            plan.workout_sessions.add(session)
+
+            return redirect("training_plan_dashboard")
+
+        return render(
+            request,
+            "rehab/workout_session_form.html",
+            {
+                "form": form,
+                "plan": plan
+            }
+        )
+
+class WorkoutSessionCompleteView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+        session = get_object_or_404(
+            WorkoutSession,
+            pk=pk,
+            trainingplan__account=request.user
+        )
+
+        session.completed = True
+        session.save(update_fields=["completed"])
+
+        return redirect("training_plan_dashboard")
+
+class WorkoutSessionUpdateView(LoginRequiredMixin, View):
+
+    def get_session(self, request, plan_pk, pk):
+        plan = get_object_or_404(
+            TrainingPlan,
+            pk=plan_pk,
+            account=request.user
+        )
+
+        session = get_object_or_404(
+            plan.workout_sessions,
+            pk=pk
+        )
+
+        return plan, session
+
+    def get(self, request, plan_pk, pk):
+        plan, session = self.get_session(
+            request, plan_pk, pk
+        )
+
+        form = WorkoutSessionForm(instance=session)
+
+        return render(
+            request,
+            "rehab/workout_session_form.html",
+            {
+                "form": form,
+                "plan": plan,
+                "editing": True
+            }
+        )
+
+    def post(self, request, plan_pk, pk):
+        plan, session = self.get_session(
+            request, plan_pk, pk
+        )
+
+        form = WorkoutSessionForm(
+            request.POST,
+            instance=session
+        )
+
+        if form.is_valid():
+            form.save()
+            return redirect("training_plan_dashboard")
+
+        return render(
+            request,
+            "rehab/workout_session_form.html",
+            {
+                "form": form,
+                "plan": plan,
+                "editing": True
+            }
+        )
+
+class WorkoutSessionDeleteView(LoginRequiredMixin, View):
+
+    def get_session(self, request, plan_pk, pk):
+        plan = get_object_or_404(
+            TrainingPlan,
+            pk=plan_pk,
+            account=request.user
+        )
+
+        session = get_object_or_404(
+            plan.workout_sessions,
+            pk=pk
+        )
+
+        return plan, session
+
+    def get(self, request, plan_pk, pk):
+        plan, session = self.get_session(
+            request, plan_pk, pk
+        )
+
+        return render(
+            request,
+            "rehab/workout_session_confirm_delete.html",
+            {
+                "plan": plan,
+                "session": session
+            }
+        )
+
+    def post(self, request, plan_pk, pk):
+        plan, session = self.get_session(
+            request, plan_pk, pk
+        )
+
+        # Remove the session from this plan only.
+        plan.workout_sessions.remove(session)
+
+        # Delete the session record only if no plans use it.
+        if not session.trainingplan_set.exists():
+            session.delete()
+
+        return redirect("training_plan_dashboard")
+
 class TrainingPlanDashboardView(LoginRequiredMixin, View):
     def get(self, request):
-        plan = TrainingPlan.objects.filter(active=True).first()
+        plan = TrainingPlan.objects.filter(
+            account=request.user,
+            active=True
+        ).order_by("-start_date").first()
 
         if plan:
             sessions = plan.workout_sessions.all()
@@ -521,21 +924,91 @@ from django.shortcuts import render
 from .ai_service import generate_exercise_response
 
 
+
 def ai_assistant(request):
-    answer = None
     question = ""
+    answer = None
+    exercises = []
+    error = None
 
     if request.method == "POST":
         question = request.POST.get("question", "").strip()
 
-        if question:
-            answer = generate_exercise_response(question)
+        if not question:
+            error = "Please describe your exercise goals."
+
+        elif len(question) > 500:
+            error = "Please keep your request under 500 characters."
+
+        else:
+            try:
+                from .ai_service import retrieve_exercises
+
+                exercises = retrieve_exercises(question, top_k=3)
+                print("EXERCISE FINDER RESULTS:", exercises, flush=True)
+                if not exercises:
+                    error = "No exercises are currently available."
+
+            except Exception:
+                error = "Unable to find exercises right now. Please try again."
+                import logging
+                logging.getLogger(__name__).exception(
+                    "Exercise Finder failed"
+                )
 
     return render(
         request,
         "rehab/ai_assistant.html",
         {
             "question": question,
-            "answer": answer
-        }
+            "answer": answer,
+            "exercises": exercises,
+            "error": error,
+        },
     )
+
+class WorkoutReflectionView(LoginRequiredMixin, View):
+
+    def get_session(self, request, pk):
+        return get_object_or_404(
+            WorkoutSession,
+            pk=pk,
+            trainingplan__account=request.user,
+            completed=True
+        )
+
+    def get(self, request, pk):
+        session = self.get_session(request, pk)
+
+        form = WorkoutReflectionForm(instance=session)
+
+        return render(
+            request,
+            "rehab/workout_reflection_form.html",
+            {
+                "form": form,
+                "session": session
+            }
+        )
+
+    def post(self, request, pk):
+        session = self.get_session(request, pk)
+
+        form = WorkoutReflectionForm(
+            request.POST,
+            instance=session
+        )
+
+        if form.is_valid():
+            form.save()
+
+            return redirect("training_plan_dashboard")
+
+        return render(
+            request,
+            "rehab/workout_reflection_form.html",
+            {
+                "form": form,
+                "session": session
+            }
+        )

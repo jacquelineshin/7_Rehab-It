@@ -1,0 +1,70 @@
+
+{% extends "rehab/base.html" %}
+
+{% block title %}Workout Reflection{% endblock %}
+
+{% block rehab_content %}
+
+<div class="ai-page">
+
+    <h1>Workout Reflection</h1>
+
+    <p class="ai-page-intro">
+        Reflect on how your workout went and track
+        your rehabilitation progress over time.
+    </p>
+
+    <div class="card">
+
+        <h2>{{ session.name }}</h2>
+
+        <p>
+            <strong>Workout Date:</strong>
+            {{ session.date|date:"M d, Y" }}
+        </p>
+
+        <form method="post" class="ai-form">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <h3>How difficult was this workout?</h3>
+
+            <p>
+                Rate the overall difficulty of your session
+                from 1 (Very Easy) to 5 (Very Difficult).
+            </p>
+
+            <div class="reflection-rating">
+                {{ form.difficulty_rating }}
+            </div>
+
+            {{ form.difficulty_rating.errors }}
+
+            <h3>Workout Notes</h3>
+
+            <p>
+                Record how you felt, what went well,
+                and anything you found challenging.
+            </p>
+
+            {{ form.reflection_notes }}
+            {{ form.reflection_notes.errors }}
+
+            <button type="submit" class="ai-submit">
+                Save Reflection
+            </button>
+
+        </form>
+
+    </div>
+
+    <p>
+        <a href="{% url 'training_plan_dashboard' %}">
+            Cancel and Return to Dashboard
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}

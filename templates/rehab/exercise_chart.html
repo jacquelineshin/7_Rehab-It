@@ -1,61 +1,520 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Rehab-It Exercise Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
 
-<body>
+{% extends "rehab/base.html" %}
 
-<header>
-    <h1>Rehab-It</h1>
-    <p>Exercise Difficulty Dashboard</p>
-</header>
+{% block title %}Exercise Dashboard{% endblock %}
 
-<main>
-    <h2>Exercises by Difficulty</h2>
+{% block rehab_content %}
+
+<div class="training-dashboard">
+
+    <!-- Dashboard Header -->
+    <div class="training-header">
+
+        <div>
+            <h1>Exercise Dashboard</h1>
+
+            <p>
+                Monitor your workouts, track your
+                rehabilitation progress, and explore
+                available exercises.
+            </p>
+        </div>
+
+        <a href="{% url 'training_plan_dashboard' %}"
+           class="training-btn">
+            View Training Plans
+        </a>
+
+    </div>
+
+
+    <!-- Personal Training Overview -->
+    <div class="training-card">
+
+        <span class="training-label">
+            YOUR REHABILITATION
+        </span>
+
+        <h2>My Training Progress</h2>
+
+        {% if plan %}
+
+            <h3>{{ plan.name }}</h3>
+
+            <p class="training-dates">
+                {{ plan.start_date|date:"M d, Y" }}
+                –
+                {{ plan.end_date|date:"M d, Y" }}
+            </p>
+
+            <div class="training-progress">
+
+                <div class="training-progress-heading">
+                    <h3>Overall Progress</h3>
+                    <strong>{{ percentComplete }}%</strong>
+                </div>
+
+                <div class="training-progress-track"
+                     role="progressbar"
+                     aria-label="Training completion"
+                     aria-valuenow="{{ percentComplete }}"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+
+                    <div class="training-progress-fill"
+                         style="width: {{ percentComplete }}%;">
+                    </div>
+
+                </div>
+
+                <p>
+                    {{ completedCount }} of {{ totalCount }}
+                    workout sessions completed
+                </p>
+
+            </div>
+
+            <div class="training-plan-actions">
+
+                <a href="{% url 'training_plan_dashboard' %}"
+                   class="training-btn">
+                    Manage Training Plan
+                </a>
+
+                <a href="{% url 'training_plan_history' %}"
+                   class="training-secondary-btn">
+                    View Training History
+                </a>
+
+            </div>
+
+        {% else %}
+
+            <p>
+                You don't have an active training plan yet.
+                Create one to begin tracking your
+                rehabilitation progress.
+            </p>
+
+            <div class="training-plan-actions">
+
+                <a href="{% url 'training_plan_create' %}"
+                   class="training-btn">
+                    + Create Training Plan
+                </a>
+
+                <a href="{% url 'training_plan_history' %}"
+                   class="training-secondary-btn">
+                    View Training History
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Recent Workout Activity -->
+    <div class="training-sessions-header">
+        <h2>Recent Workout Activity</h2>
+    </div>
+
+    {% if recent_sessions %}
+
+        <div class="training-session-list">
+
+            {% for session in recent_sessions %}
+
+                <div class="training-session-card">
+
+                    <div class="training-session-top">
+
+                        <div>
+                            <h3>{{ session.name }}</h3>
+
+                            <p class="training-session-date">
+                                {{ session.date|date:"M d, Y" }}
+                            </p>
+                        </div>
+
+                        {% if session.completed %}
+
+                            <span class="training-status completed">
+                                ✓ Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="training-status pending">
+                                Not Completed
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                    {% if session.difficulty_rating %}
+
+                        <p>
+                            <strong>Difficulty:</strong>
+                            {{ session.get_difficulty_rating_display }}
+                            ({{ session.difficulty_rating }}/5)
+                        </p>
+
+                    {% endif %}
+
+                    {% if session.reflection_notes %}
+
+                        <p>
+                            <strong>Workout Notes:</strong>
+                            {{ session.reflection_notes|truncatewords:25 }}
+                        </p>
+
+                    {% endif %}
+
+                    <div class="training-session-actions">
+
+                        <a href="{% url 'training_plan_dashboard' %}"
+                           class="training-secondary-btn">
+                            View Training Plan
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="training-card">
+
+            <p>
+                No workout activity recorded yet.
+                Add workout sessions to your training
+                plan to begin tracking your progress.
+            </p>
+
+            <a href="{% url 'training_plan_dashboard' %}"
+               class="training-secondary-btn">
+                View Training Plan
+            </a>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- Workout Difficulty Over Time -->
+    <div class="training-sessions-header">
+        <h2>Workout Difficulty Over Time</h2>
+    </div>
+
+    <div class="training-card">
+
+        <h3>How Have Your Workouts Felt?</h3>
+
+        <p>
+            Track how difficult your completed workouts
+            have felt over time using your reflection ratings.
+        </p>
+
+        {% if difficulty_values %}
+
+            <div class="chart-container">
+
+                <canvas id="workoutDifficultyChart"
+                        role="img"
+                        aria-label="Line chart of workout difficulty ratings over time">
+                </canvas>
+
+            </div>
+
+            <p>
+                Difficulty is rated from 1 (Very Easy)
+                to 5 (Very Difficult).
+            </p>
+
+        {% else %}
+
+            <p>
+                No workout difficulty ratings recorded yet.
+                Complete a workout and add a reflection
+                to start tracking your progress.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+<!-- Workout Consistency Calendar -->
+<div class="training-sessions-header">
+    <h2>Workout Consistency</h2>
+</div>
+
+<div class="training-card">
+
+    <h3>Your Rehabilitation Activity</h3>
 
     <p>
-        <a href="{% url 'vegaCharts' %}">
-            View Additional Exercise Charts (Vega-Lite)
-        </a>
+        See which days you completed workouts
+        and track your rehabilitation routine.
     </p>
 
-    <div class="chart-container">
-        <canvas id="difficultyChart"
-                role="img"
-                aria-label="Bar chart showing the number of exercises at each difficulty level"></canvas>
+    <div class="workout-calendar">
+
+        <div class="calendar-header">
+
+            <button type="button"
+                    id="previousMonth"
+                    class="training-secondary-btn">
+                ← Previous
+            </button>
+
+            <h3 id="calendarMonth"></h3>
+
+            <button type="button"
+                    id="nextMonth"
+                    class="training-secondary-btn">
+                Next →
+            </button>
+
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+
+        <p class="calendar-legend">
+            <span class="calendar-legend-square"></span>
+            Completed workout
+        </p>
+
     </div>
-</main>
 
-<footer>
-    Rehab-It Exercise Analytics
-</footer>
+</div>
 
+    <!-- Explore Exercises -->
+    <div class="training-sessions-header">
+        <h2>Explore Exercises</h2>
+    </div>
+
+    <div class="training-card">
+
+        <h3>Discover Rehabilitation Exercises</h3>
+
+        <p>
+            Explore the rehabilitation exercises
+            available in Rehab-It and learn more
+            about their difficulty levels.
+        </p>
+
+        <div class="training-plan-actions">
+
+            <a href="{% url 'vegaCharts' %}"
+               class="training-secondary-btn">
+                View Additional Exercise Charts
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Load Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+
+
+<!-- Workout Difficulty Data from Django -->
+{{ difficulty_labels|json_script:"difficulty-labels" }}
+{{ difficulty_values|json_script:"difficulty-values" }}
+
+
+<!-- Workout Difficulty Over Time Chart -->
 <script>
-fetch("{% url 'exerciseSummaryApi' %}")
-    .then(response => response.json())
-    .then(data => {
-        new Chart(document.getElementById("difficultyChart"), {
-            type: "bar",
+
+    const difficultyLabels = JSON.parse(
+        document.getElementById("difficulty-labels").textContent
+    );
+
+    const difficultyValues = JSON.parse(
+        document.getElementById("difficulty-values").textContent
+    );
+
+    const difficultyCanvas = document.getElementById(
+        "workoutDifficultyChart"
+    );
+
+    if (difficultyCanvas) {
+
+        new Chart(difficultyCanvas, {
+
+            type: "line",
+
             data: {
-                labels: data.map(d => d.label),
+
+                labels: difficultyLabels,
+
                 datasets: [{
-                    label: "Exercises",
-                    data: data.map(d => d.count)
+                    label: "Workout Difficulty",
+                    data: difficultyValues,
+                    borderColor: "#243b63",
+                    backgroundColor: "rgba(36, 59, 99, 0.12)",
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.25,
+                    fill: true
                 }]
+
             },
+
             options: {
+
+                responsive: true,
+
+                plugins: {
+
+                    legend: {
+                        display: true
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return "Difficulty: " +
+                                    context.parsed.y + "/5";
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
                 scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0 } }
+
+                    y: {
+
+                        min: 1,
+                        max: 5,
+
+                        ticks: {
+                            stepSize: 1
+                        },
+
+                        title: {
+                            display: true,
+                            text: "Difficulty Rating"
+                        }
+
+                    },
+
+                    x: {
+
+                        title: {
+                            display: true,
+                            text: "Workout Date"
+                        }
+
+                    }
+
                 }
+
             }
+
         });
-    })
-    .catch(error => console.error("Could not load chart data:", error));
+
+    }
+
 </script>
 
-</body>
-</html>
+{{ calendar_dates|json_script:"calendar-dates" }}
+
+<script>
+    const completedDates = new Set(
+        JSON.parse(
+            document.getElementById("calendar-dates").textContent
+        )
+    );
+
+    let displayedMonth = new Date();
+    displayedMonth.setDate(1);
+
+    const calendarGrid = document.getElementById("calendarGrid");
+    const calendarMonth = document.getElementById("calendarMonth");
+
+    function renderWorkoutCalendar() {
+        const year = displayedMonth.getFullYear();
+        const month = displayedMonth.getMonth();
+
+        calendarMonth.textContent =
+            displayedMonth.toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric"
+            });
+
+        calendarGrid.innerHTML = "";
+
+        // Weekday headings
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            .forEach(day => {
+                const heading = document.createElement("div");
+                heading.className = "calendar-weekday";
+                heading.textContent = day;
+                calendarGrid.appendChild(heading);
+            });
+
+        const firstWeekday = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Empty spaces before the first day
+        for (let i = 0; i < firstWeekday; i++) {
+            const empty = document.createElement("div");
+            empty.className = "calendar-empty";
+            calendarGrid.appendChild(empty);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateString =
+                year + "-" +
+                String(month + 1).padStart(2, "0") + "-" +
+                String(day).padStart(2, "0");
+
+            const cell = document.createElement("div");
+            cell.className = "calendar-day";
+            cell.textContent = day;
+
+            if (completedDates.has(dateString)) {
+                cell.classList.add("calendar-completed");
+                cell.title = "Workout completed";
+            }
+
+            calendarGrid.appendChild(cell);
+        }
+    }
+
+    document.getElementById("previousMonth")
+        .addEventListener("click", function() {
+            displayedMonth.setMonth(displayedMonth.getMonth() - 1);
+            renderWorkoutCalendar();
+        });
+
+    document.getElementById("nextMonth")
+        .addEventListener("click", function() {
+            displayedMonth.setMonth(displayedMonth.getMonth() + 1);
+            renderWorkoutCalendar();
+        });
+
+    renderWorkoutCalendar();
+</script>
+
+{% endblock %}
